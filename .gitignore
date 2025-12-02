@@ -1,0 +1,37 @@
+#configuration
+/.config.env
+/.config.env.new
+/invoke
+
+#assets
+/public/assets-v*
+
+#node
+/node_modules/
+/public/js/*
+!/public/js/.gitkeep
+
+#ides (put your favorite IDE tmp file masks here)
+.*.swp
+
+###> symfony/framework-bundle ###
+/.env.local
+/.env.local.php
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
+/var/
+/vendor/
+###< symfony/framework-bundle ###
+
+###> symfony/phpunit-bridge ###
+.phpunit
+.phpunit.result.cache
+/phpunit.xml
+###< symfony/phpunit-bridge ###
+
+/phpcs.xml.dist
+###> squizlabs/php_codesniffer ###
+/.phpcs-cache
+/phpcs.xml
+###< squizlabs/php_codesniffer ###

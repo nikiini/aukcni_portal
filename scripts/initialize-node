@@ -1,0 +1,10 @@
+#!/bin/bash
+
+yarn install
+
+arg=""
+if [ "$1" = "prod" ]; then
+    arg="--production"
+fi
+
+lib/jscompile $arg
