@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+{% block title %}Moje notifikace{% endblock %}
+{% block body %}
+<div class="karta">
+    <h1>Notifikace</h1>
+
+    {% if notifikace is not empty %}
+        {% for jednaNotifikace in notifikace %}
+        <div class="notifikace {% if jednaNotifikace.stav == 'nova' %}notifikace-nova{% endif %}" style="margin-bottom:16px;">
+
+        <p style="margin-bottom: 6px;">{{ jednaNotifikace.text }}</p>
+
+        <small style="color: #64748b;">{{ jednaNotifikace.vytvoreno|date('d.m.Y H:i') }}</small>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>Nemáte žádné notifikace.</p>
+    {% endif %}
+</div>
+{% endblock %}

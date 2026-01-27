@@ -1,16 +1,67 @@
 <!DOCTYPE html>
-<html>
+<html lang="cs">
     <head>
         <meta charset="UTF-8">
-        <title>{% block title %}Vývojové prostředí pro PVA{% endblock %}</title>
-        {% block stylesheets %}
-            <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-        {% endblock %}
-        {% block javascripts %}
-            <script src="{{ asset('js/main.js') }}"></script>
-        {% endblock %}
+        <script>
+            (function (){
+                const ulozenyRezim = localStorage.getItem('rezim-vzhledu');
+                if(ulozenyRezim === 'dark'){
+                    document.documentElement.classList.add('dark');
+                    document.body?.classList.add('dark');
+                }
+            })();
+        </script>
+        <title>{% block title %}Aukční portál{% endblock %}</title>
+        <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     </head>
     <body>
+    <header style="background-color: #2c3e50;
+        color:white;
+        padding: 15px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;">
+        <div><strong>Aukční portál</strong></div>
+    <nav>
+        <a href="{{ path('domovskaStranka') }}" style="color: white; margin-right: 15px;">Domů</a>
+        <a href="{{ path('aukce') }}" style="color: white; margin-right: 15px;">Aukce</a>
+        {% if app.user %}
+            <a href="{{ path('notifikace') }}" style="color: white; margin-right: 15px;">Notifikace</a>
+            <a href="{{ path('uzivatel_statistiky') }}" style="color: white; margin-right: 15px;">Moje statistiky</a>
+        <a href="{{ path('profil') }}" style="color: white; margin-right: 15px;">{{ app.user.celeJmeno }}</a>
+            {% if is_granted('ROLE_ADMIN') %}
+                <a href="{{ path('admin_aukce') }}" style="color: white; margin-right: 15px">Administrace</a>
+                {% endif %}
+        <a href="{{ path('app_logout') }}" style="color: white;">Odhlásit</a>
+        {% else %}
+        <a href="{{ path('app_login') }}" style="color: white;">Přihlásit se</a>
+        {% endif %}
+    </nav>
+    </header>
+        <main class="obsah">
+            {% for label, messages in app.flashes %}
+            {% for message in messages %}
+            <div class="flash-{{ label }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endfor %}
         {% block body %}{% endblock %}
+        </main>
+
+    {#  {% if app.user %}
+        <pre>
+        ROLE DEBUG:
+        {{ dump(app.user.roles) }}
+    </pre>
+    {% endif %}
+    {% if is_granted('ROLE_ADMIN') %}
+        <p style="color:lime;">ADMIN DETEKOVÁN</p>
+    {% else %}
+        <p style="color:red;">ADMIN NENÍ</p>
+    {% endif %}
+    #}
+    <script src="{{ asset('js/main.js') }}"></script>
+    <script src="{{ asset('js/animace.js') }}" defer></script>
     </body>
 </html>

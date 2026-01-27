@@ -1,0 +1,155 @@
+{% extends 'base.html.twig' %}
+{% block title %}
+{{ aukce.nazev }}
+{% endblock %}
+{% block body %}
+<div class="karta">
+    <h1>{{ aukce.nazev }}</h1>
+    <p>{{ aukce.popis }}</p>
+    <p><strong>Vyvolávací cena: </strong>{{ aukce.vychoziCena }} Kč</p>
+    {% if aukce.aktualniCena %}
+    <p><strong>Aktuální cena: </strong>{{ aukce.aktualniCena }} Kč</p>
+    {% endif %}
+
+    <p><strong>Stav: </strong>{{ aukce.stav }}</p>
+    <p><strong>Autor: </strong>{{ aukce.uzivatel.celeJmeno }}</p>
+
+    {% set ted ="now"|date("U") %}
+    {% set konec=aukce.casKonce|date("U") %}
+    {% set rozdil=konec-ted %}
+
+    {% if rozdil>0 %}
+        <p id="odpocet-aukce"
+        data-cas-konce="{{ aukce.casKonce|date('U') }}"
+        data-stav="{{ aukce.stav }}">
+    </p>
+    {% else %}
+    <p>Aukce ukončena.</p>
+        {% if aukce.vitez %}
+            <p><strong>Vítěz aukce:</strong>{{ aukce.vitez.celeJmeno }}</p>
+            {% else %}
+            <p>Aukce neměla žádné příhozy.</p>
+        {% endif %}
+    {% endif %}
+    {% if app.user %}
+    {% if aukce.stav == 'aktivni' and aukce.casKonce > date() %}
+        {% if app.user.id != aukce.uzivatel.id %}
+    <div id="sazka-box" class="karta" style="margin-top: 20px">
+        <h2>Přihodit</h2>
+        <form method="post" action="{{ path('aukce_prihodit', {id:aukce.id}) }}">
+            <label for="castka">Částka (Kč)</label>
+            <input id="castka" name="castka" type="number" step="1" min="0" required>
+            <div class="form-actions">
+                <button type="submit" class="button">Přihodit</button>
+            </div>
+        </form>
+    </div>
+    {% else %}
+    <div class="karta" style="margin-top: 20px;">
+        <p>Toto je vaše aukce. Nemůžete do ní přihazovat.</p>
+    </div>
+    {% endif %}
+    {% else %}
+        <div class="karta" style="margin-top: 20px;">
+            <p>Do této aukce už nelze přihazovat.</p>
+        </div>
+    {% endif %}
+    {% else %}
+    <div class="karta" style="margin-top: 20px">
+        <p>Pro přihazování se musíte přihlásit.</p>
+        <a class="button" href="{{ path('app_login') }}">Přihlásit</a>
+    </div>
+    {% endif %}
+    <div class="karta" style="margin-top: 20px";>
+        <h2>Historie příhozů</h2>
+        {%  if sazky is defined and sazky is not empty %}
+        <table>
+            <thead>
+            <tr>
+                <th>Čas</th>
+                <th>Uživatel</th>
+                <th>Částka</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for s in sazky %}
+            <tr>
+                <td>{{ s.vytvoreno|date('d.m.Y H:i') }}</td>
+                <td>{{ s.uzivatel.celeJmeno }}</td>
+                <td><strong>{{ s.castka }} Kč</strong></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>Zatím nikdo nepřihodil.</p>
+        {% endif %}
+    </div>
+    <div class="karta" style="margin-top: 20px;">
+        <h2>Komentáře</h2>
+        {% if komentare is defined and komentare is not empty %}
+        {%  for komentar in komentare %}
+        <div class="komentar">
+            {% if is_granted('ROLE_ADMIN') %}
+            <a href="{{ path('admin_komentar_smazat', {id: komentar.id}) }}" style="color: red;font-size: 14px;" onclick="return confirm('Opravdu chcete tento komentář smazat?');">
+                Smazat komentář</a>
+            {% endif %}
+            <p style="margin-bottom: 6px;">
+                <strong>{{ komentar.uzivatel.celeJmeno }}</strong>
+                <span style="color: #64748b"> {{ komentar.vytvoreno|date('d.m.Y H:i') }}</span>
+            </p>
+            {% if komentar.hodnoceni %}
+            <p style="margin: 0 0 6px 0;">
+                Hodnocení: <strong>{{ komentar.hodnoceni }}/5</strong>
+            </p>
+            {% endif %}
+
+            <p style="margin: 0;">{{ komentar.text }}</p>
+            <hr style="margin: 14px 0; border: none; border-top: 1px solid #e5e7eb;">
+        </div>
+        {% endfor %}
+        {% else %}
+        <p>Zatím zde nejsou komentáře.</p>
+        {% endif %}
+    </div>
+    {% if aukce.stav != 'ukoncena' %}
+    {% if app.user %}
+    <div class="karta" style="margin-top: 20px;">
+        <h3>Přidat komentář</h3>
+        <form method="post" action="{{ path('aukce_komentar_pridat', {id: aukce.id}) }}">
+            <label for="text_komentare">Text komentáře</label>
+            <textarea id="text_komentare" name="text_komentare" maxlength="500" required></textarea>
+
+            <p id="pocitadlo-znaku">0/500</p>
+            <label for="hodnoceni">Hodnocení (1_5) (volitelné)</label>
+            <select id="hodnoceni" name="hodnoceni">
+                <option value="">Bez hodnocení</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select>
+            <div class="form-actions">
+                <button type="submit" class="button">Odeslat</button>
+            </div>
+        </form>
+    </div>
+    {% else %}
+    <div class="karta" style="margin-top: 20px;">
+        <p>Pro přidávání komentáře se musíte přihlásit.</p>
+        <a class="button button-secondary" href="{{ path('app_login') }}">Přihlásit</a>
+    </div>
+    {% endif %}
+    {% else %}
+    <div class="karta" style="margin-top: 20px;">
+        <p>Tato aukce je ukončena. Komentáře již není možné přidávat.</p>
+    </div>
+    <div class="form-actions">
+        <a href="{{ path('aukce') }}" class="button button-secondary">
+            Zpět na aukce
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

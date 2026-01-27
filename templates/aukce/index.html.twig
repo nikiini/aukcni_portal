@@ -1,0 +1,88 @@
+{% extends 'base.html.twig' %}
+{%  block title %}Aukce{% endblock %}
+{% block body %}
+    <div class="karta">
+        <div class="aukce-hlavicka">
+            <h1>Aukce</h1>
+            {% if app.user and pocetAktivnich < 5 %}
+            <a href="{{ path('aukce_nova') }}" class="button">+ Vytvořit novou aukci</a>
+            {% elseif app.user %}
+            <p class="info-text">
+                Máte maximální počet 5 aktivních aukcí.
+            </p>
+            {% endif %}
+        </div>
+        <div class="aukce-filtry">
+            <button class="filtr-button akce-aktivni" data-sekce="vse">Všechny</button>
+            <button class="filtr-button" data-sekce="doporucene">Doporučené</button>
+            <button class="filtr-button" data-sekce="nove-dnes">Nově dnes</button>
+            <button class="filtr-button" data-sekce="konci-brzy">Brzy končí</button>
+        </div>
+
+        {% if aukce is empty %}
+        <div class="karta">
+            <p>Zatím zde nejsou žádné aukce.</p>
+        </div>
+            {% else %}
+                <section class="sekce-aukce" data-sekce="vse">
+                    <div class="aukce-grid">
+                        {% for jednaAukce in aukce %}
+                        <a href="{{ path('aukce_detail', {id: jednaAukce.id}) }}" class="karta karta-link">
+                            <h3 class="aukce-title">{{ jednaAukce.nazev }}</h3>
+                            <p class="aukce-popis">{{ jednaAukce.popis }}</p>
+                            <p class="aukce-price"><strong>Vyvolávací cena: </strong>{{ jednaAukce.vychoziCena }} Kč</p>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </section>
+
+                <section class="sekce-aukce" data-sekce="doporucene" style="display: none;">
+                    {% if aukceDoporucene is not empty %}
+                        <div class="aukce-grid">
+                            {% for jednaAukce in aukceDoporucene %}
+                                <a href="{{ path('aukce_detail', {id: jednaAukce.id}) }}" class="karta karta-link">
+                                    <h3 class="aukce-title">{{ jednaAukce.nazev }}</h3>
+                                    <p class="aukce-popis">{{ jednaAukce.popis }}</p>
+                                    <p class="aukce-price"><strong>Vyvolávací cena: </strong>{{ jednaAukce.vychoziCena }} Kč</p>
+                                </a>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                            <p>Momentálně zde nejsou žádné doporučené aukce.</p>
+                        {% endif %}
+                </section>
+
+                <section class="sekce-aukce" data-sekce="nove-dnes" style="display: none;">
+                    {% if aukceDoporucene is not empty %}
+                        <div class="aukce-grid">
+                            {% for jednaAukce in aukceNoveDnes %}
+                                <a href="{{ path('aukce_detail', {id: jednaAukce.id}) }}" class="karta karta-link">
+                                    <h3 class="aukce-title">{{ jednaAukce.nazev }}</h3>
+                                    <p class="aukce-popis">{{ jednaAukce.popis }}</p>
+                                    <p class="aukce-price"><strong>Vyvolávací cena: </strong>{{ jednaAukce.vychoziCena }} Kč</p>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p>Dnes zatím nebyly přidány žádné nové aukce.</p>
+                    {% endif %}
+                </section>
+
+                <section class="sekce-aukce" data-sekce="konci-brzy" style="display: none;">
+                    {% if aukceKonciBrzy is not empty %}
+                        <div class="aukce-grid">
+                            {% for jednaAukce in aukceKonciBrzy %}
+                                <a href="{{ path('aukce_detail', {id: jednaAukce.id}) }}" class="karta karta-link">
+                                    <h3 class="aukce-title">{{ jednaAukce.nazev }}</h3>
+                                    <p class="aukce-popis">{{ jednaAukce.popis }}</p>
+                                    <p class="aukce-price"><strong>Vyvolávací cena: </strong>{{ jednaAukce.vychoziCena }} Kč</p>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p>Žádné aukce nyní nekončí v nejbližší době.</p>
+                    {% endif %}
+                </section>
+                {% endif %}
+        </div>
+{% endblock %}

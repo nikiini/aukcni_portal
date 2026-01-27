@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+{% block title %}Nová aukce{% endblock %}
+{% block body %}
+<h1>Vytvořit aukci</h1>
+<div class="karta">
+     {{ form_start(formular) }}
+{{ form_row(formular.nazev) }}
+{{ form_row(formular.popis) }}
+{{ form_row(formular.vychozi_cena) }}
+{{ form_widget(formular) }}
+     <div class="form-actions">
+<button type="submit" class="button">Vytvořit aukci</button>
+          <a href="{{ path('aukce') }}" class="button button-secondary">Zrušit</a>
+     </div>
+{{ form_end(formular) }}
+</div>
+{% endblock %}

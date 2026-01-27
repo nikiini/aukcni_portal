@@ -1,0 +1,104 @@
+{% extends'base.html.twig' %}
+
+{% block title %} Domovská stránka {% endblock %}
+
+{% block body %}
+    <section class="hero">
+        <div class="hero-text">
+            <h1>Aukční portál</h1>
+            <p class="hero-subtitle">Objev nové aukce, přihazuj a prodávej. Rychle a jednoduše.</p>
+            <div class="hero-actions">
+                <a class="button" href="{{ path('aukce') }}">Procházet aukce</a>
+                {% if app.user %}
+                <a class="button button-secondary" href="{{ path('aukce_moje') }}">Moje aukce</a>
+                {% else %}
+                <a class="button button-secondary" href="{{ path('app_login') }}">Přihlásit</a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="hero-badges">
+            <div class="badge">Doporučené<span class="badge-pocet">{{ aukce|length }}</span></div>
+            <div class="badge">Nově dnes<span class="badge-pocet">{{ aukceNoveDnes|length }}</span></div>
+            <div class="badge">Končí brzy<span class="badge-pocet">{{ aukceKonciBrzy|length }}</span></div>
+        </div>
+    </section>
+    <div class="homepage-layout">
+        <section class="homepage-main">
+            <h2 class="section-title">Nové aukce</h2>
+            {% if aukce is not empty %}
+                <div class="aukce-grid">
+            {% for jednaAukce in aukce %}
+            <a href="{{ path('aukce_detail', {id:jednaAukce.id}) }}" class="karta karta-link">
+                <h3 class="aukce-title">{{ jednaAukce.nazev }}</h3>
+                <p class="aukce-popis">{{ jednaAukce.popis }}</p>
+                <p class="aukce-price"><strong>Vyvolávací cena: </strong>{{ jednaAukce.vychoziCena }} Kč</p>
+            </a>
+            {% endfor %}
+                </div>
+            {% else %}
+            <div class="karta">
+                <p>Zatím zde nejsou žádné aukce.</p>
+            </div>
+            {% endif %}
+        </section>
+        {% if aukceNoveDnes is defined and aukceNoveDnes is not empty %}
+        <section class="homepage-subsekce">
+            <h2 class="section-title">Nově dnes</h2>
+            <div class="aukce-grid">
+                {% for jednaAukce in aukceNoveDnes %}
+                <a href="{{ path('aukce_detail', {id: jednaAukce.id}) }}" class="karta karta-link">
+                    <h3 class="aukce-title">{{ jednaAukce.nazev }}</h3>
+                    <p class="aukce-popis">{{ jednaAukce.popis }}</p>
+                    <p class="aukce-price"><strong>Vyvolávací cena: </strong>{{ jednaAukce.vychoziCena }} Kč</p>
+                </a>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+        {% if aukceKonciBrzy is defined and aukceKonciBrzy is not empty %}
+        <section class="homepage-subsekce">
+            <h2 class="section-title">Končí brzy</h2>
+            <div class="aukce-grid">
+                {% for jednaAukce in aukceKonciBrzy %}
+                <a href="{{ path('aukce_detail', {id: jednaAukce.id}) }}" class="karta karta-link">
+                    <h3 class="aukce-title">{{ jednaAukce.nazev }}</h3>
+                    <p class="aukce-popis">{{ jednaAukce.popis }}</p>
+                    <p class="aukce-price"><strong>Vyvolávací cena: </strong>{{ jednaAukce.vychoziCena }} Kč</p>
+                </a>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+        <aside class="homepage-sidebar">
+            {% if app.user %}
+            <div class="karta">
+                <h2>Váš účet</h2>
+                <p>Přihlášen(a) jako<br>
+                <strong>{{ app.user.celeJmeno }}</strong></p>
+                <a href="{{ path('aukce_moje') }}" class="button">Moje aukce</a>
+                <form action="{{ path('app_logout') }}" method="post">
+                    <button type="submit" class="button button-secondary">Odhlásit se</button>
+                </form>
+            </div>
+            {% else %}
+                <div class="karta">
+                    <p>Nejste přihlášen(a).</p>
+                    <a class="button" href="{{ path('app_login') }}">Přihlásit</a>
+                </div>
+                {% endif %}
+
+    <div class="karta homepage-welcome">
+        <h1>Vítejte v aukčním portálu</h1>
+        <p>Tento portál slouží k vytváření a správě aukcí mezi registrovanými uživateli.</p>
+        {% if app.user %}
+            <p>Jste přihlášen(a) jako <strong>{{ app.user.celeJmeno }}</strong></p>
+        {% else %}
+        <p>
+            Pro účast v aukcích se prosím přihlašte.
+            <a href="{{ path('app_login') }}">Přihlásit</a>
+        </p>
+        {% endif %}
+    </div>
+        </aside>
+    </div>
+{% endblock %}

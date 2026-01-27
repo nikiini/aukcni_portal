@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %} Registrace{% endblock %}
+
+{% block body %}
+    <div class="karta">
+<h1>Registrace</h1>
+
+{{ form_start(registraceForm) }}
+
+{{ form_row(registraceForm.uzivatelske_jmeno) }}
+{{ form_row(registraceForm.email) }}
+{{ form_row(registraceForm.heslo) }}
+
+<button type="submit">Registrovat</button>
+        <a href="{{ path('app_login') }}" class="button button-secondary">Zrušit</a>
+{{ form_end(registraceForm) }}
+    </div>
+
+{% endblock %}

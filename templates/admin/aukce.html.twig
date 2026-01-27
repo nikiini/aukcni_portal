@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+{% block title %}Administrace - Aukce{% endblock %}
+{% block body %}
+<div class="karta">
+    <h1>Administrace - Aukce</h1>
+    <table>
+        <thead>
+        <tr>
+        <th>Název</th>
+        <th>Autor</th>
+        <th>Stav</th>
+        <th>Správa</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for a in aukce %}
+        <tr onclick="window.location='{{ path('aukce_detail', {id: a.id}) }}" style="cursor: pointer;">
+            <td>{{ a.nazev }}</td>
+            <td>{{ a.uzivatel.celeJmeno }}</td>
+            <td>{{ a.stav }}</td>
+            <td onclick="event.stopPropagation();">
+                <a href="{{ path('admin_aukce_smazat', {id: a.id}) }}" style="color: red;" onclick="return confirm('Opravdu chcete tuto aukci smazat?');">Odstranit</a>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+

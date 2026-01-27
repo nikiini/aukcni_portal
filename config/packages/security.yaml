@@ -1,23 +1,31 @@
 security:
-    # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
+    # 1️⃣ PROVIDERS – odkud se berou uživatelé
     providers:
-        users_in_memory: { memory: null }
+        app_user_provider:
+            id: App\Security\EmailNeboUsernameProvider
+
+    # 2️⃣ HASHOVÁNÍ HESLA
+    password_hashers:
+        App\Entity\Uzivatel:
+            algorithm: auto
+
+    # 3️⃣ FIREWALLY – jak se uživatel přihlašuje
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
+
         main:
             lazy: true
-            provider: users_in_memory
+            provider: app_user_provider
+            form_login:
+                login_path: app_login
+                check_path: app_login
+            logout:
+                path: app_logout
+                target: /
 
-            # activate different ways to authenticate
-            # https://symfony.com/doc/current/security.html#firewalls-authentication
-
-            # https://symfony.com/doc/current/security/impersonating_user.html
-            # switch_user: true
-
-    # Easy way to control access for large sections of your site
-    # Note: Only the *first* access control that matches will be used
+    # 4️⃣ OPRÁVNĚNÍ
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+    # příklad:
+    # - { path: ^/admin, roles: ROLE_ADMIN }

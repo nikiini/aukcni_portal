@@ -129,9 +129,41 @@
       <path value="$PROJECT_DIR$/vendor/phpdocumentor/type-resolver" />
       <path value="$PROJECT_DIR$/vendor/phpmd/phpmd" />
       <path value="$PROJECT_DIR$/vendor/monolog/monolog" />
+      <path value="$PROJECT_DIR$/aukcni_portal/vendor/psr/cache" />
+      <path value="$PROJECT_DIR$/aukcni_portal/vendor/psr/container" />
+      <path value="$PROJECT_DIR$/aukcni_portal/vendor/psr/event-dispatcher" />
+      <path value="$PROJECT_DIR$/aukcni_portal/vendor/symfony/framework-bundle" />
+      <path value="$PROJECT_DIR$/aukcni_portal/vendor/psr/log" />
+      <path value="$PROJECT_DIR$/aukcni_portal/vendor/symfony/cache" />
+      <path value="$PROJECT_DIR$/aukcni_portal/vendor/symfony/dotenv" />
+      <path value="$PROJECT_DIR$/aukcni_portal/vendor/symfony/event-dispatcher" />
+      <path value="$PROJECT_DIR$/aukcni_portal/vendor/symfony/config" />
+      <path value="$PROJECT_DIR$/aukcni_portal/vendor/symfony/var-dumper" />
+      <path value="$PROJECT_DIR$/aukcni_portal/vendor/symfony/runtime" />
+      <path value="$PROJECT_DIR$/aukcni_portal/vendor/symfony/polyfill-intl-normalizer" />
+      <path value="$PROJECT_DIR$/aukcni_portal/vendor/symfony/filesystem" />
+      <path value="$PROJECT_DIR$/aukcni_portal/vendor/symfony/finder" />
+      <path value="$PROJECT_DIR$/aukcni_portal/vendor/symfony/event-dispatcher-contracts" />
+      <path value="$PROJECT_DIR$/aukcni_portal/vendor/symfony/yaml" />
+      <path value="$PROJECT_DIR$/aukcni_portal/vendor/symfony/http-kernel" />
+      <path value="$PROJECT_DIR$/aukcni_portal/vendor/symfony/string" />
+      <path value="$PROJECT_DIR$/aukcni_portal/vendor/symfony/polyfill-php85" />
+      <path value="$PROJECT_DIR$/aukcni_portal/vendor/symfony/routing" />
+      <path value="$PROJECT_DIR$/aukcni_portal/vendor/symfony/deprecation-contracts" />
+      <path value="$PROJECT_DIR$/aukcni_portal/vendor/symfony/http-foundation" />
+      <path value="$PROJECT_DIR$/aukcni_portal/vendor/symfony/service-contracts" />
+      <path value="$PROJECT_DIR$/aukcni_portal/vendor/symfony/flex" />
+      <path value="$PROJECT_DIR$/aukcni_portal/vendor/symfony/var-exporter" />
+      <path value="$PROJECT_DIR$/aukcni_portal/vendor/symfony/cache-contracts" />
+      <path value="$PROJECT_DIR$/aukcni_portal/vendor/symfony/error-handler" />
+      <path value="$PROJECT_DIR$/aukcni_portal/vendor/symfony/console" />
+      <path value="$PROJECT_DIR$/aukcni_portal/vendor/symfony/dependency-injection" />
+      <path value="$PROJECT_DIR$/aukcni_portal/vendor/symfony/polyfill-intl-grapheme" />
+      <path value="$PROJECT_DIR$/aukcni_portal/vendor/symfony/polyfill-mbstring" />
+      <path value="$PROJECT_DIR$/aukcni_portal/vendor/composer" />
     </include_path>
   </component>
-  <component name="PhpProjectSharedConfiguration" php_language_level="8.3">
+  <component name="PhpProjectSharedConfiguration" php_language_level="8.0">
     <option name="suggestChangeDefaultLanguageLevel" value="false" />
   </component>
   <component name="PhpStan">

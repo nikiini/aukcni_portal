@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+{% block title%}Úprava profilu{% endblock %}
+{% block body %}
+<div class="karta">
+    <h1>Úprava profilu</h1>
+    <div class="karta">
+        {{ form_start(formular) }}
+        {{ form_row(formular.cele_jmeno) }}
+        {{ form_row(formular.email) }}
+        <button type="submit">Uložit změny</button>
+        {{ form_end(formular) }}
+        <br>
+        <a href="{{ path('profil') }}" class="button button-secondary">Zrušit</a>
+    </div>
+</div>
+{% endblock %}

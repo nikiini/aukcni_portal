@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+{% block title%}Můj profil{% endblock %}
+{% block body %}
+
+<div class="profil-layout">
+    <section class="karta profil-sekce-hlavni">
+        <h1>Můj profil</h1>
+        <div class="profil-dvojice">
+            <h2>Osobní údaje</h2>
+            <div class="profil-popisek"><strong>Celé jméno: </strong></div><div class="profil-hodnota"> {{ uzivatel.celeJmeno }}</div>
+            <div class="profil-popisek"><strong>Uživatelské jméno: </strong></div><div class="profil-hodnota"> {{ uzivatel.uzivatelskeJmeno }}</div>
+            <div class="profil-popisek"><strong>Email: </strong></div><div class="profil-hodnota"> {{ uzivatel.email }}</div>
+            <div class="profil-popisek"><strong>Kredity: </strong></div><div class="profil-hodnota"> {{ uzivatel.kredity }}</div>
+
+            <div class="profil-popisek"><strong>Aktivní aukce:</strong></div><div class="profil-hodnota"> {{ pocetAktivnichAukci }}</div>
+            <div class="profil-popisek"><strong>Ukončené aukce:</strong></div><div class="profil-hodnota"> {{ pocetUkoncenychAukci }}</div>
+        </div>
+
+        <div class="profil-statistika">
+            <p><strong>Aktivní aukce: </strong>{{ pocetAktivnichAukci }}</p>
+            <p><strong>Ukončené aukce: </strong>{{ pocetUkoncenychAukci }}</p>
+        </div>
+
+        <div class="form-actions">
+            <a href="{{ path('profil_uprava') }}"><button>Upravit profil</button></a>
+        </div>
+    </section>
+
+    <aside class="karta">
+        <h2>Vzhled apikace</h2>
+        <p>Můžete přepínat mezi světlým a tmavým režimem.</p>
+        <button id="dark-mode" class="button button-secondary">Přepnout režim vzhledu</button>
+
+        <hr style="margin: 18px 0; border: none; border-top: 1px solid rgba(148,163,184,0.5);">
+
+        <p><strong>Rychlé odkazy</strong></p>
+        <p><a href="{{ path('aukce_moje') }}">Moje aukce</a></p>
+        <p><a href="{{ path('uzivatel_statistiky') }}">Moje statistiky</a></p>
+    </aside>
+</div>
+{% endblock %}

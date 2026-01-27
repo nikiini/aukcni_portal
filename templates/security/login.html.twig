@@ -1,0 +1,26 @@
+{%  extends 'base.html.twig' %}
+
+{% block title %}Přihlášení{% endblock %}
+
+{% block body %}
+    <div class="karta">
+<h1>Přihlášení</h1>
+
+{% if error %}
+<p style="color: red;">Nesprávné přihlašovací údaje!</p>
+{% endif %}
+<form action="{{ path('app_login') }}" method="post">
+    <label for="email">Email: </label>
+    <input type="text" id="email" name="_username" value="{{ posledni_username }}">
+
+    <label for="heslo">Heslo: </label>
+    <input type="password" id="heslo" name="_password">
+
+    <button type="submit">Přihlásit se</button>
+</form>
+    <p>
+        Nemáte účet?
+        <a href="{{ path('app_registrace') }}">Registrujte se.</a>
+    </p>
+    </div>
+{% endblock %}

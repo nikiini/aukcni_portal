@@ -9,7 +9,7 @@ services:
         expose:
             - 80
         ports:
-            - ${APP_PORT:-80}:80
+            - ${APP_PORT:-8080}:80
         volumes:
             - .:/var/www/html
         environment:
@@ -19,8 +19,7 @@ services:
         expose:
             - 3306
         volumes:
-            - .:/mnt
-        working_dir: /mnt
+            - db_data:/var/lib/mysql
         environment:
             MYSQL_ROOT_PASSWORD: rootpass
             MYSQL_DATABASE: thedatabase
@@ -34,3 +33,5 @@ services:
                 - WWW_DATA_GID=${WWW_DATA_GID:-orig}
         volumes:
             - .:/workspace
+volumes:
+    db_data:

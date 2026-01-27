@@ -1,0 +1,60 @@
+{% extends 'base.html.twig' %}
+{% block title %}Statistiky{% endblock %}
+
+{% block body %}
+<div class="karta">
+    <h1>Moje statistiky</h1>
+    <p>Přihlášený uživatel: <strong>{{ uzivatel.celeJmeno }}</strong></p>
+</div>
+
+<div class="statistiky-layout">
+    <section class="homepage-main">
+        <div class="karta statistika">
+            <h2>Aukce</h2>
+            <p>Celkem vytvořených aukcí: <strong>{{ pocetAukciCelkem }}</strong></p>
+            <p>Aktivní aukce: <strong>{{ pocetAukciAktivnich }}</strong></p>
+            <p>Ukončené aukce: <strong>{{ pocetAukciUkoncenych }}</strong></p>
+
+            {% set celkem = pocetAukciCelkem ?: 1 %}
+            {% set aktivniProcenta = (pocetAukciAktivnich / celkem * 100)|round(0,'floor') %}
+            {% set ukoncenaProcenta = (pocetAukciUkoncenych / celkem * 100)|round(0,'floor') %}
+
+            <div class="statistika-graf">
+                <div class="statistika-graf-sloupec">
+                    <div class="statistika-graf-pruh" style="--vyska-procenta: 100;"></div>
+                    <span>Vše</span>
+                    <span>{{ pocetAukciCelkem }}</span>
+                </div>
+                <div class="statistika-graf-sloupec">
+                    <div class="statistika-graf-pruh" style="--vyska-procenta: {{ aktivniProcenta }}"></div>
+                    <span>Aktivní</span>
+                    <span>{{ pocetAukciAktivnich }}</span>
+                </div>
+                <div class="statistika-graf-sloupec">
+                    <div class="statistika-graf-pruh" style="--vyska-procenta: {{ ukoncenaProcenta }}"></div>
+                    <span>Ukončené</span>
+                    <span>{{ pocetAukciUkoncenych }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="karta">
+            <h2>Sázky</h2>
+            <p>Počet provedených příhozů: <strong>{{ pocetSazek }}</strong></p>
+            <p>Celkem přihozeno: <strong>{{ celkemPrihozeno }} Kč</strong></p>
+        </div>
+        <div class="karta">
+            <h2>Komentáře</h2>
+            <p>Počet napsaných komentářů: <strong>{{ pocetKomentaru }}</strong></p>
+        </div>
+    </section>
+    <aside  class="homepage-sidebar">
+        <div class="karta">
+            <h2>Rychlá navigace</h2>
+            <p><a href="{{ path('aukce') }}" class="button button-secondary">Všechny aukce</a></p>
+            <p><a href="{{ path('aukce_moje') }}" class="button button-secondary">Moje aukce</a></p>
+            <p><a href="{{ path('notifikace') }}" class="button button-secondary">Notifikace</a></p>
+        </div>
+    </aside>
+</div>
+{% endblock %}
