@@ -3,7 +3,7 @@
 {% block body %}
 <div class="karta">
     <h1>Administrace - Aukce</h1>
-    <table>
+    <table class="admin-tabulka">
         <thead>
         <tr>
         <th>Název</th>
@@ -14,12 +14,12 @@
         </thead>
         <tbody>
         {% for a in aukce %}
-        <tr onclick="window.location='{{ path('aukce_detail', {id: a.id}) }}" style="cursor: pointer;">
+        <tr onclick="window.location='{{ path('aukce_detail', {id: a.id}) }}'">
             <td>{{ a.nazev }}</td>
             <td>{{ a.uzivatel.celeJmeno }}</td>
             <td>{{ a.stav }}</td>
             <td onclick="event.stopPropagation();">
-                <a href="{{ path('admin_aukce_smazat', {id: a.id}) }}" style="color: red;" onclick="return confirm('Opravdu chcete tuto aukci smazat?');">Odstranit</a>
+                <a href="{{ path('admin_aukce_smazat', {id: a.id}) }}" class="admin-smazat" onclick="return confirm('Opravdu chcete tuto aukci smazat?');">Odstranit</a>
             </td>
         </tr>
         {% endfor %}

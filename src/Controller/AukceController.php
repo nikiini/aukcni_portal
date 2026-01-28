@@ -6,10 +6,13 @@ use App\Entity\Uzivatel;
 use App\Entity\Sazky;
 use App\Entity\Komentare;
 use App\Entity\Notifikace;
+use App\Entity\Kategorie;
+use App\Entity\AukceKategorie;
 use App\Repository\KomentareRepository;
 use App\Repository\SazkyRepository;
 use App\Form\AukceType;
 use App\Repository\AukceRepository;
+use App\Repository\KategorieRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Container\ContainerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -20,9 +23,11 @@ use Symfony\Component\Routing\Annotation\Route;
 class AukceController extends AbstractController
 {
     #[Route('/aukce', name: 'aukce')]
-    public function index(AukceRepository $aukceRepository): Response
+    public function index(AukceRepository $aukceRepository, KategorieRepository $kategorieRepository, Request $request): Response
     {
         $aukceVsechny = $aukceRepository->findAll();
+        $kategorie = $kategorieRepository->findAll();
+        $sekce = $request->query->get('sekce', 'vse');
         $aukceDoporucene = $aukceRepository->najdiNoveAukce(12);
         $aukceNoveDnes = $aukceRepository->najdiNoveAukceDnes(12);
         $aukceKonciBrzy = $aukceRepository->najdiAukceKonciBrzy(12);
@@ -38,7 +43,11 @@ class AukceController extends AbstractController
             'aukceNoveDnes' => $aukceNoveDnes,
             'aukceKonciBrzy' => $aukceKonciBrzy,
             'pocetAktivnich' => $pocetAktivnich,
+            'kategorie' => $kategorie,
+            'rezimStranky' => 'vse',
+            'aktivniSekce' => $sekce,
         ]);
+
     }
 
     #[Route('/aukce/moje', name: 'aukce_moje')]
@@ -50,13 +59,19 @@ class AukceController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        $aukce = $aukceRepository->findBy([
-            'uzivatel' => $uzivatel
-        ]);
-
+        $aukceMoje = $aukceRepository->findBy(
+            ['uzivatel' => $uzivatel],
+            ['cas_konce' => 'DESC']
+        );
         return $this->render('aukce/index.html.twig', [
-            'aukce' => $aukce,
-            'pocetAktivnich' => count($aukce),
+            'aukce' => $aukceMoje,
+            'aukceDoporucene' => [],
+            'aukceNoveDnes' => [],
+            'aukceKonciBrzy' => [],
+            'kategorie' => [],
+            'pocetAktivnich' => count($aukceMoje),
+            'rezimStranky' => 'moje',
+            'aktivniSekce' => 'moje',
         ]);
     }
 
@@ -88,14 +103,21 @@ class AukceController extends AbstractController
             $aukce->setCasKonce((clone $casZacatku)->modify('+' . $delka . ' days'));
             $aukce->setStav('aktivni');
             $aukce->setAktualniCena($aukce->getVychoziCena());
+
+            $vybraneKategorie = $formular->get('kategorie')->getData();
+            foreach ($vybraneKategorie as $kategorie) {
+                $aukceKategorie = new AukceKategorie();
+                $aukceKategorie->setAukce($aukce);
+                $aukceKategorie->setKategorie($kategorie);
+                $entityManager->persist($aukceKategorie);
+            }
+
             $entityManager->persist($aukce);
             $entityManager->flush();
             $this->addFlash('success', 'Aukce byla úspěšně vytvořena.');
             return $this->redirectToRoute('aukce');
         }
-        return $this->render('aukce/nova.html.twig', [
-            'formular' => $formular->createView(),
-        ]);
+        return $this->render('aukce/nova.html.twig', ['formular' => $formular->createView(),]);
     }
 
     #[Route('/aukce/{id}', name: 'aukce_detail')]
@@ -214,7 +236,7 @@ class AukceController extends AbstractController
         $entityManager->persist($sazka);
 
         $autorAukce = $aukce->getUzivatel();
-        if ($autorAukce && $autorAukce->getId() !== $aukce->getId()) {
+        if ($autorAukce && $autorAukce->getId() !== $uzivatel->getId()) {
             $notifikace = new Notifikace();
             $notifikace->setUzivatel($autorAukce);
             $notifikace->setTyp('prihod');

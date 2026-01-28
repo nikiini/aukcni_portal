@@ -20,7 +20,7 @@ class NotifikaceController extends AbstractController{
         );
 
         foreach($notifikace as $jednaNotifikace){
-            if($jednaNotifikace->getStav()==='nova'){
+            if($jednaNotifikace->getStav() === 'nova'){
                 $jednaNotifikace->setStav('prectena');
             }
         }

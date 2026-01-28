@@ -40,4 +40,14 @@ class NotifikaceRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+    public function najdiNotifikaceUzivatele(int $uzivatelId): array
+    {
+        return $this->createQueryBuilder('notifikace')
+            ->where('notifikace.uzivatel = :uzivatelId')
+            ->setParameter('uzivatel', $uzivatelId)
+            ->orderBy('notifikace.vytvoreno', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }
+

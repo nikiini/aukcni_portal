@@ -296,7 +296,25 @@ textarea:focus{
     box-shadow: 0 0 0 1px rgba(79,70,229,0.18);
     background-color: #f8fafc;
 }
+.profil-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
 
+.profil-radek {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    align-items: center;
+}
+
+.profil-label {
+    font-weight: bold;
+}
+.profil-sekce-hlavni h2 {
+    margin-top: 28px;
+    margin-bottom: 16px;
+}
 .form-actions{
     margin-top: 14px;
     display: flex;
@@ -355,10 +373,51 @@ textarea:focus{
 .badge-pocet{
     font-weight: 700;
 }
+.aukce-kategorie{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+.badge-kategorie{
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(79,70,229,0.12);
+    color: #4F46e5;
+    border: 1px solid rgba(79,70,229,0.35);
+    font-weight: 500;
+}
+.filtr-kategorie{
+    border-radius: 999px;
+    border: 1px solid rgba(148,163,184,0.45);
+    background: rgba(148,163,184,0.12);
+    padding: 6px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+.filtr-kategorie:hover{
+    background: rgba(79,70,229,0.15);
+}
+.filtr-kategorie.aktivni{
+    background: rgba(79,70,229,0.25);
+    border-color: rgba(79,70,229,0.8);
+    font-weight: 600;
+}
+html.dark .filtr-kategorie{
+    color: #e5e7eb;
+    background: rgba(148,163,184,0.2);
+}
+body.dark .badge-kategorie, html.dark .badge-kategorie{
+    background: rgba(129,140,248,0.25);
+    color: #ffffff;
+    border-color: rgba(129,140,248,0.7);
+}
 .homepage-layout{
     display: grid;
-    grid-template-columns: minmax(0, 2.2fr) minmax(0, 1.4fr) minmax(240px, 0.9fr);
-    gap: 26px;
+    grid-template-columns: 260px 1fr;
+    gap: 32px;
     align-items: flex-start;
     margin-top: 10px;
 }
@@ -366,17 +425,22 @@ textarea:focus{
 .homepage-main{
     min-width: 0;
 }
-
+.homepage-main section{
+    margin-bottom: 48px;
+}
 .homepage-subsekce{
     min-width: 0;
 }
 
 .homepage-sidebar{
     position: sticky;
-    top: 90px;
+    top: 100px;
     min-width: 0;
 }
-
+.homepage-sidebar .button{
+    width: 100%;
+    margin-bottom: 10px;
+}
 .homepage-welcome{
     text-align: center;
 }
@@ -515,7 +579,7 @@ html.dark .filtr-button.akce-aktivni{
 }
 .profil-layout{
     display: grid;
-    grid-template-columns: minmax(0, 1.6fr) minmax(260px, 0.9fr);
+    grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
     gap: 22px;
     align-items: flex-start;
 }
@@ -526,12 +590,17 @@ html.dark .filtr-button.akce-aktivni{
 
 .profil-dvojice{
     display: grid;
-    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.2fr);
-    gap: 10px 24px;
-    margin-bottom: 6px;
+    grid-template-columns: 160px auto;
+    column-gap: 18px;
+    row-gap: 14px;
+    margin-bottom: 16px;
     font-size: 14px;
+    align-items: center;
 }
-
+.profil-dvojice h2{
+    grid-column: 1/-1;
+    margin-bottom: 12px;
+}
 .profil-popisek{
     color: var(--barva-text-treti);
 }
@@ -544,6 +613,9 @@ html.dark .filtr-button.akce-aktivni{
     margin-top: 10px;
     font-size: 14px;
 }
+.profil-sekce-hlavni{
+    max-width: 720px;
+}
 #dark-mode{
     margin-top: 10px;
 }
@@ -553,6 +625,37 @@ html.dark .filtr-button.akce-aktivni{
     padding: 8px 12px;
 }
 
+.admin-tabulka{
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    font-size: 14px;
+}
+
+.admin-tabulka th,
+.admin-tabulka td{
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--barva-okraju-jemna);
+    text-align: left;
+}
+
+.admin-tabulka thead{
+    background: rgba(148,163,184,0.12);
+}
+
+.admin-tabulka tbody tr{
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.admin-tabulka tbody tr:hover{
+    background: rgba(79,70,229,0.08);
+}
+
+.admin-smazat{
+    color: var(--barva-error);
+    font-weight: 600;
+}
 
 @keyframes fadeInUp{
     from{

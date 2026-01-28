@@ -3,11 +3,10 @@
     <head>
         <meta charset="UTF-8">
         <script>
-            (function (){
+            (function () {
                 const ulozenyRezim = localStorage.getItem('rezim-vzhledu');
                 if(ulozenyRezim === 'dark'){
                     document.documentElement.classList.add('dark');
-                    document.body?.classList.add('dark');
                 }
             })();
         </script>

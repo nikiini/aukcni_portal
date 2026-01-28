@@ -14,10 +14,13 @@
             <p>Celkem vytvořených aukcí: <strong>{{ pocetAukciCelkem }}</strong></p>
             <p>Aktivní aukce: <strong>{{ pocetAukciAktivnich }}</strong></p>
             <p>Ukončené aukce: <strong>{{ pocetAukciUkoncenych }}</strong></p>
+        </div>
 
             {% set celkem = pocetAukciCelkem ?: 1 %}
             {% set aktivniProcenta = (pocetAukciAktivnich / celkem * 100)|round(0,'floor') %}
             {% set ukoncenaProcenta = (pocetAukciUkoncenych / celkem * 100)|round(0,'floor') %}
+<div class="karta">
+    <h2>Graf aukcí</h2>
 
             <div class="statistika-graf">
                 <div class="statistika-graf-sloupec">
@@ -48,12 +51,12 @@
             <p>Počet napsaných komentářů: <strong>{{ pocetKomentaru }}</strong></p>
         </div>
     </section>
-    <aside  class="homepage-sidebar">
+    <aside class="homepage-sidebar">
         <div class="karta">
             <h2>Rychlá navigace</h2>
-            <p><a href="{{ path('aukce') }}" class="button button-secondary">Všechny aukce</a></p>
-            <p><a href="{{ path('aukce_moje') }}" class="button button-secondary">Moje aukce</a></p>
-            <p><a href="{{ path('notifikace') }}" class="button button-secondary">Notifikace</a></p>
+            <p><a href="{{ path('aukce') }}" class=" button button-secondary">Všechny aukce</a></p>
+            <p><a href="{{ path('aukce_moje') }}" class=" button button-secondary">Moje aukce</a></p>
+            <p><a href="{{ path('notifikace') }}" class=" button button-secondary">Notifikace</a></p>
         </div>
     </aside>
 </div>

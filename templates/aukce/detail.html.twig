@@ -5,6 +5,15 @@
 {% block body %}
 <div class="karta">
     <h1>{{ aukce.nazev }}</h1>
+    {% if aukce.aukceKategorie is not empty %}
+    <div class="aukce-kategorie">
+        {% for ak in aukce.aukceKategorie %}
+        {% if ak.kategorie %}
+        <span class="badge-kategorie">{{ ak.kategorie.nazev }}</span>
+        {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
     <p>{{ aukce.popis }}</p>
     <p><strong>Vyvolávací cena: </strong>{{ aukce.vychoziCena }} Kč</p>
     {% if aukce.aktualniCena %}

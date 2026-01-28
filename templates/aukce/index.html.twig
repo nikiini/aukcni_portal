@@ -1,9 +1,20 @@
 {% extends 'base.html.twig' %}
 {%  block title %}Aukce{% endblock %}
 {% block body %}
+    {% set rezimStranky = rezimStranky|default('vse') %}
+    {% set aktivniSekce = aktivniSekce|default('vse') %}
+    {% set pocetAktivnich = pocetAktivnich|default(0) %}
+    {% set aukceDoporucene = aukceDoporucene|default([]) %}
+    {% set aukceNoveDnes = aukceNoveDnes|default([]) %}
+    {% set aukceKonciBrzy = aukceKonciBrzy|default([]) %}
+    {% set kategorie = kategorie|default([]) %}
     <div class="karta">
         <div class="aukce-hlavicka">
-            <h1>Aukce</h1>
+            {% if rezimStranky == 'moje' %}
+            <h1>Moje aukce</h1>
+            {% else %}
+            <h1>Všechny aukce</h1>
+            {% endif %}
             {% if app.user and pocetAktivnich < 5 %}
             <a href="{{ path('aukce_nova') }}" class="button">+ Vytvořit novou aukci</a>
             {% elseif app.user %}
@@ -12,12 +23,25 @@
             </p>
             {% endif %}
         </div>
+        {% if rezimStranky == 'vse' %}
         <div class="aukce-filtry">
             <button class="filtr-button akce-aktivni" data-sekce="vse">Všechny</button>
             <button class="filtr-button" data-sekce="doporucene">Doporučené</button>
             <button class="filtr-button" data-sekce="nove-dnes">Nově dnes</button>
             <button class="filtr-button" data-sekce="konci-brzy">Brzy končí</button>
+            <button class="filtr-button {{ aktivniSekce == 'doporucene' ? 'akce-aktivni' : '' }}" data-sekce="doporucene"></button>
         </div>
+        {% endif %}
+
+        {% if rezimStranky == 'vse' and kategorie is not empty %}
+        <div class="aukce-filtry">
+            <strong>Filtrovat podle kategorie: </strong>
+            <button class="filtr-kategorie aktivni" data-kategorie="vse">Vše</button>
+            {% for kat in kategorie %}
+            <button class="filtr-kategorie" data-kategorie="{{ kat.id }}">{{ kat.nazev }}</button>
+            {% endfor %}
+        </div>
+        {% endif %}
 
         {% if aukce is empty %}
         <div class="karta">
@@ -27,15 +51,23 @@
                 <section class="sekce-aukce" data-sekce="vse">
                     <div class="aukce-grid">
                         {% for jednaAukce in aukce %}
-                        <a href="{{ path('aukce_detail', {id: jednaAukce.id}) }}" class="karta karta-link">
-                            <h3 class="aukce-title">{{ jednaAukce.nazev }}</h3>
-                            <p class="aukce-popis">{{ jednaAukce.popis }}</p>
-                            <p class="aukce-price"><strong>Vyvolávací cena: </strong>{{ jednaAukce.vychoziCena }} Kč</p>
-                        </a>
+                            <a href="{{ path('aukce_detail', {id: jednaAukce.id}) }}" class="karta karta-link" data-kategorie="{% for ak in jednaAukce.aukceKategorie %}{{ ak.kategorie.id }}{% if not loop.last %},{% endif %}{% endfor %}">
+                                {% if jednaAukce.aukceKategorie is not empty %}
+                                    <div class="aukce-kategorie">
+                                        {% for ak in jednaAukce.aukceKategorie %}
+                                                <span class="badge-kategorie">{{ ak.kategorie.nazev }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <h3 class="aukce-title">{{ jednaAukce.nazev }}</h3>
+                                <p class="aukce-popis">{{ jednaAukce.popis }}</p>
+                                <p class="aukce-price"><strong>Vyvolávací cena: </strong>{{ jednaAukce.vychoziCena }} Kč</p>
+                            </a>
                         {% endfor %}
                     </div>
                 </section>
 
+                {% if rezimStranky == 'vse' %}
                 <section class="sekce-aukce" data-sekce="doporucene" style="display: none;">
                     {% if aukceDoporucene is not empty %}
                         <div class="aukce-grid">
@@ -53,7 +85,7 @@
                 </section>
 
                 <section class="sekce-aukce" data-sekce="nove-dnes" style="display: none;">
-                    {% if aukceDoporucene is not empty %}
+                    {% if aukceNoveDnes is not empty %}
                         <div class="aukce-grid">
                             {% for jednaAukce in aukceNoveDnes %}
                                 <a href="{{ path('aukce_detail', {id: jednaAukce.id}) }}" class="karta karta-link">
@@ -84,5 +116,6 @@
                     {% endif %}
                 </section>
                 {% endif %}
+        {% endif %}
         </div>
 {% endblock %}
