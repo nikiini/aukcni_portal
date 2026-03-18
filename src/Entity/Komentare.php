@@ -31,6 +31,31 @@ class Komentare
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $vytvoreno = null;
 
+    #[ORM\Column]
+    private bool $skryty = false;
+
+    #[ORM\Column(length: 32, unique: true)]
+    private ?string $verejneId = null;
+
+    public function getVerejneId(): ?string
+    {
+        return $this->verejneId;
+    }
+
+    public function setVerejneId(string $verejneId): static
+    {
+        $this->verejneId = $verejneId;
+        return $this;
+    }
+    public function isSkryty(): bool
+    {
+        return $this->skryty;
+    }
+    public function setSkryty(bool $skryty): static{
+        $this->skryty = $skryty;
+        return $this;
+    }
+
     public function getId(): ?int
     {
         return $this->id;

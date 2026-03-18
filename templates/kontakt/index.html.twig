@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+{% block title %}Kontakt{% endblock %}
+
+{% block body %}
+
+    <div class="karta">
+
+        <h1>Kontakt aukčního portálu</h1>
+
+        <p>
+            Aukční portál slouží pouze jako prostředník mezi uživateli.
+            Provozovatel portálu nenese odpovědnost za vypořádání aukce.
+        </p>
+
+        <p>
+            Pokud dojde k problémům, mohou účastníci aukci nahlásit.
+            Každé nahlášení je následně manuálně zkontrolováno administrátorem.
+        </p>
+
+        <p>
+            Administrátor může v odůvodněných případech uživatele zablokovat.
+        </p>
+
+        <hr>
+
+        <div class="profil-dvojice">
+
+            <div>Email:</div>
+            <div><strong>tester.aukce@gmail.com</strong></div>
+
+            <div>Telefon:</div>
+            <div>+420 777 000 000</div>
+
+            <div>Organizace:</div>
+            <div>SPŠ Ostrov</div>
+
+        </div>
+
+        <div class="form-actions" style="margin-top:20px;">
+            <a href="mailto:tester.aukce@gmail.com" class="button">
+                Napsat e-mail
+            </a>
+        </div>
+
+    </div>
+
+{% endblock %}

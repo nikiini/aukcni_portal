@@ -1,66 +1,167 @@
 <!DOCTYPE html>
 <html lang="cs">
-    <head>
-        <meta charset="UTF-8">
-        <script>
-            (function () {
-                const ulozenyRezim = localStorage.getItem('rezim-vzhledu');
-                if(ulozenyRezim === 'dark'){
-                    document.documentElement.classList.add('dark');
-                }
-            })();
-        </script>
-        <title>{% block title %}Aukční portál{% endblock %}</title>
-        <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    </head>
-    <body>
-    <header style="background-color: #2c3e50;
-        color:white;
-        padding: 15px 30px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;">
-        <div><strong>Aukční portál</strong></div>
-    <nav>
-        <a href="{{ path('domovskaStranka') }}" style="color: white; margin-right: 15px;">Domů</a>
-        <a href="{{ path('aukce') }}" style="color: white; margin-right: 15px;">Aukce</a>
-        {% if app.user %}
-            <a href="{{ path('notifikace') }}" style="color: white; margin-right: 15px;">Notifikace</a>
-            <a href="{{ path('uzivatel_statistiky') }}" style="color: white; margin-right: 15px;">Moje statistiky</a>
-        <a href="{{ path('profil') }}" style="color: white; margin-right: 15px;">{{ app.user.celeJmeno }}</a>
-            {% if is_granted('ROLE_ADMIN') %}
-                <a href="{{ path('admin_aukce') }}" style="color: white; margin-right: 15px">Administrace</a>
+<head>
+    <meta charset="UTF-8">
+    <script>
+        (function () {
+            const ulozenyRezim = localStorage.getItem('rezim-vzhledu');
+            if (ulozenyRezim === 'dark') {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+    <title>{% block title %}Aukční portál{% endblock %}</title>
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+</head>
+<body>
+<header>
+    <div class="header-levy">
+        <div class="header-logo"></div>
+        <div class="header-text">
+            <div class="header-nazev">Aukční portál</div>
+            <div class="header-podnazev">Školní aukční systém</div>
+        </div>
+    </div>
+    <nav class="navigace">
+        <button type="button" class="nav-toggle" onclick="toggleMenu()">☰</button>
+        <div class="navigace-odkazy">
+            <a href="{{ path('domovskaStranka') }}"
+               class="{{ app.request.attributes.get('_route') == 'domovskaStranka' ? 'aktivni-odkaz' : '' }}">
+                Domů
+            </a>
+            <div class="nav-item-wrapper">
+                <a href="{{ path('aukce') }}"
+                   class="nav-link {{ app.request.attributes.get('_route') starts with 'aukce' ? 'aktivni-odkaz' : '' }}">
+                    Aukce
+                </a>
+
+                {% if kategorieNavigace is not empty %}
+                    <div class="nav-dropdown">
+                        <div class="nav-dropdown-content">
+                            {% set aktualniPismeno = '' %}
+
+                            {% for kat in kategorieNavigace %}
+                                {% set prvni = kat.nazev|slice(0, 1)|upper %}
+
+                                {% if prvni != aktualniPismeno %}
+                                    {% set aktualniPismeno = prvni %}
+                                    <div class="nav-dropdown-pismeno">
+                                        {{ aktualniPismeno }}
+                                    </div>
+                                {% endif %}
+
+                                <a href="{{ path('aukce', { typ: kat.id }) }}"
+                                   class="nav-dropdown-link">
+                                    {{ kat.nazev }}
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
                 {% endif %}
-        <a href="{{ path('app_logout') }}" style="color: white;">Odhlásit</a>
-        {% else %}
-        <a href="{{ path('app_login') }}" style="color: white;">Přihlásit se</a>
-        {% endif %}
+            </div>
+            <a href="{{ path('kontakt') }}"
+               class="{{ app.request.attributes.get('_route') == 'kontakt' ? 'aktivni-odkaz' : '' }}">
+                Kontakt
+            </a>
+
+            {% if app.user %}
+                <a href="{{ path('notifikace') }}"
+                   class="{{ app.request.attributes.get('_route') == 'notifikace' ? 'aktivni-odkaz' : '' }}">
+                    Notifikace
+                </a>
+                <a href="{{ path('uzivatel_statistiky') }}"
+                   class="{{ app.request.attributes.get('_route') == 'uzivatel_statistiky' ? 'aktivni-odkaz' : '' }}">
+                    Moje statistiky
+                </a>
+                <a href="{{ path('profil') }}"
+                   class="{{ app.request.attributes.get('_route') == 'profil' ? 'aktivni-odkaz' : '' }}">
+                    {{ app.user.celeJmeno }}
+                </a>
+                {% if is_granted('ROLE_ADMIN') %}
+                    <div class="nav-admin">
+                        <a href="{{ path('admin_panel') }}"
+                           class="{{ app.request.attributes.get('_route') == 'admin_panel' ? 'aktivni-odkaz' : '' }}">
+                            Administrace
+                        </a>
+
+                        <a href="{{ path('admin_reporty') }}"
+                           class="{{ app.request.attributes.get('_route') == 'admin_reporty' ? 'aktivni-odkaz' : '' }}">
+                            Reporty aukcí
+                        </a>
+                    </div>
+                {% endif %}
+                <a href="{{ path('app_logout') }}">Odhlásit</a>
+            {% else %}
+                <a href="{{ path('app_login') }}"
+                   class="{{ app.request.attributes.get('_route') == 'app_login' ? 'aktivni-odkaz' : '' }}">
+                    Přihlásit se
+                </a>
+            {% endif %}
+        </div>
+
+        <button type="button"
+                class="prepni-rezim"
+                id="prepni-rezim"
+                aria-label="Přepnout světlý / tmavý motiv">
+            <span class="prepni-rezim-ikona prepni-rezim-ikona-svetlo">☀️</span>
+            <span class="prepni-rezim-ikona prepni-rezim-ikona-tma">🌙</span>
+        </button>
     </nav>
-    </header>
-        <main class="obsah">
-            {% for label, messages in app.flashes %}
-            {% for message in messages %}
+</header>
+
+<main class="obsah">
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
             <div class="flash-{{ label }}">
                 {{ message }}
             </div>
-            {% endfor %}
-            {% endfor %}
-        {% block body %}{% endblock %}
-        </main>
+        {% endfor %}
+    {% endfor %}
+    {% block body %}{% endblock %}
+</main>
 
-    {#  {% if app.user %}
-        <pre>
-        ROLE DEBUG:
-        {{ dump(app.user.roles) }}
-    </pre>
-    {% endif %}
-    {% if is_granted('ROLE_ADMIN') %}
-        <p style="color:lime;">ADMIN DETEKOVÁN</p>
-    {% else %}
-        <p style="color:red;">ADMIN NENÍ</p>
-    {% endif %}
-    #}
-    <script src="{{ asset('js/main.js') }}"></script>
-    <script src="{{ asset('js/animace.js') }}" defer></script>
-    </body>
+
+<script src="{{ asset('js/animace.js') }}" defer></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const tlacitkoRezim = document.getElementById('prepni-rezim');
+        if (!tlacitkoRezim) {
+            return;
+        }
+
+        const aktualizujTlacitko = () => {
+            const jeTmavyRezim = document.documentElement.classList.contains('dark');
+            tlacitkoRezim.setAttribute('aria-pressed', jeTmavyRezim ? 'true' : 'false');
+            tlacitkoRezim.title = jeTmavyRezim ? 'Přepnout na světlý motiv' : 'Přepnout na tmavý motiv';
+
+            const ikonaSvetlo = tlacitkoRezim.querySelector('.prepni-rezim-ikona-svetlo');
+            const ikonaTma = tlacitkoRezim.querySelector('.prepni-rezim-ikona-tma');
+            if (ikonaSvetlo && ikonaTma) {
+                ikonaSvetlo.style.opacity = jeTmavyRezim ? '0.4' : '1';
+                ikonaTma.style.opacity = jeTmavyRezim ? '1' : '0.4';
+            }
+        };
+
+        aktualizujTlacitko();
+
+        tlacitkoRezim.addEventListener('click', () => {
+            const htmlPrvek = document.documentElement;
+            const jeNyniTmavy = htmlPrvek.classList.contains('dark');
+            if (jeNyniTmavy) {
+                htmlPrvek.classList.remove('dark');
+                localStorage.setItem('rezim-vzhledu', 'light');
+            } else {
+                htmlPrvek.classList.add('dark');
+                localStorage.setItem('rezim-vzhledu', 'dark');
+            }
+            aktualizujTlacitko();
+        });
+    });
+    function toggleMenu(){
+        const menu = document.querySelector('.navigace-odkazy');
+        menu.classList.toggle('open');
+    }
+</script>
+</body>
 </html>

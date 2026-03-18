@@ -13,8 +13,6 @@ class UzivatelFixtures extends Fixture
         $uzivatel = new Uzivatel();
         $uzivatel->setEmail('test@test.com');
         $uzivatel->setCeleJmeno('Test uzivatel');
-        $uzivatel->setRoles('ROLE_USER');
-
-
+        $uzivatel->setRole('ROLE_USER');
     }
 }

@@ -35,3 +35,5 @@
 /.phpcs-cache
 /phpcs.xml
 ###< squizlabs/php_codesniffer ###
+.idea/
+.DS_Storepublic/uploads/

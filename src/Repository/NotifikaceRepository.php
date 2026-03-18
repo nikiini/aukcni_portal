@@ -11,6 +11,7 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class NotifikaceRepository extends ServiceEntityRepository
 {
+    //  Inicializuje závislosti potřebné pro fungování třídy.
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Notifikace::class);

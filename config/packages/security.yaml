@@ -27,5 +27,6 @@ security:
 
     # 4️⃣ OPRÁVNĚNÍ
     access_control:
+        - { path: ^/admin, roles: ROLE_ADMIN }
     # příklad:
     # - { path: ^/admin, roles: ROLE_ADMIN }

@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+{% block title %}Upravit aukci{% endblock %}
+
+{% block body %}
+    <div class="karta">
+        <h1>Upravit aukci</h1>
+
+        <p><strong>{{ aukce.nazev }}</strong></p>
+
+        {{ form_start(form) }}
+
+        {{ form_widget(form) }}
+
+        <div class="form-actions" style="margin-top:15px;">
+            <button type="submit" class="button">
+                Uložit změny
+            </button>
+
+            <a href="{{ path('admin_uzivatele') }}"
+               class="button-secondary">
+                Zpět
+            </a>
+        </div>
+
+        {{ form_end(form) }}
+    </div>
+{% endblock %}

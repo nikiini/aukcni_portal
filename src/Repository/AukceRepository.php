@@ -12,35 +12,12 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class AukceRepository extends ServiceEntityRepository
 {
+    //  Inicializuje závislosti potřebné pro fungování třídy.
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Aukce::class);
     }
-
-    //    /**
-    //     * @return Aukce[] Returns an array of Aukce objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('a')
-    //            ->andWhere('a.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('a.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?Aukce
-    //    {
-    //        return $this->createQueryBuilder('a')
-    //            ->andWhere('a.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    //  Spočítá aktivní aukce vybraného uživatele.
     public function pocetAktivnichAukciUzivatele(int $uzivatelId): int{
         $aktualniCas = new \DateTime();
         return (int) $this->createQueryBuilder('aktivniAukce')
@@ -48,12 +25,14 @@ class AukceRepository extends ServiceEntityRepository
             ->where('aktivniAukce.uzivatel = :uzivatel')
             ->andWhere('aktivniAukce.stav =:stav')
             ->andWhere('aktivniAukce.cas_konce > :aktualniCas')
+            ->andWhere('aktivniAukce.skryta = false')
             ->setParameter('uzivatel', $uzivatelId)
             ->setParameter('stav', 'aktivni')
             ->setParameter('aktualniCas', $aktualniCas)
             ->getQuery()
             ->getSingleScalarResult();
     }
+    //  Spočítá ukončené aukce vybraného uživatele.
     public function pocetUkoncenychAukciUzivatele(int $uzivatelId): int
     {
         $aktualniCas = new \DateTime();
@@ -61,68 +40,127 @@ class AukceRepository extends ServiceEntityRepository
             ->select('COUNT(ukoncenaAukce.id)')
             ->where('ukoncenaAukce.uzivatel = :uzivatel')
             ->andWhere('ukoncenaAukce.cas_konce <= :aktualniCas')
+            ->andWhere('ukoncenaAukce.skryta = false')
             ->setParameter('uzivatel', $uzivatelId)
             ->setParameter('aktualniCas', $aktualniCas)
             ->getQuery()
             ->getSingleScalarResult();
     }
-    public function najdiNoveAukce(int $pocet = 6):array
+    //  Vrátí doporučené aukce pro domovskou stránku.
+    public function najdiDoporucene(int $pocet = 6, ?int $typId = null): array
     {
-        return $this->createQueryBuilder('aukce')
-            ->andWhere('aukce.stav = :stav')
-            ->setParameter('stav', 'aktivni')
-            ->orderBy('aukce.cas_zacatku', 'DESC')
+        $qb = $this->createQueryBuilder('a')
+            ->leftJoin('a.aukceKategorie', 'ak')
+            ->leftJoin('ak.kategorie', 'k')
+            ->where('a.stav = :stav')
+            ->andWhere('a.skryta = false')
+            ->setParameter('stav', 'aktivni');
+
+        if ($typId) {
+            $qb->andWhere('k.id = :typId')
+                ->setParameter('typId', $typId);
+        }
+
+        return $qb
+            ->orderBy('a.cas_zacatku', 'DESC')   // zatím bereme nejnovější jako doporučené
             ->setMaxResults($pocet)
             ->getQuery()
             ->getResult();
     }
-    public function najdiNoveAukceDnes(int $pocet = 6):array
+    // Vyhledá aukce vytvořené během dneška.
+    public function najdiNoveAukceDnes(int $pocet = 6, ?int $typId = null): array
     {
         $zacatekDne = new \DateTime('today');
-        return $this->createQueryBuilder('aukce')
-            ->andWhere('aukce.stav = :stav')
-            ->andWhere('aukce.cas_zacatku >= :zacatekDne')
+
+        $qb = $this->createQueryBuilder('a')
+            ->leftJoin('a.aukceKategorie', 'ak')
+            ->leftJoin('ak.kategorie', 'k')
+            ->where('a.stav = :stav')
+            ->andWhere('a.cas_zacatku >= :zacatekDne')
+            ->andWhere('a.skryta = false')
             ->setParameter('stav', 'aktivni')
-            ->setParameter('zacatekDne', $zacatekDne)
-            ->orderBy('aukce.cas_zacatku', 'DESC')
+            ->setParameter('zacatekDne', $zacatekDne);
+
+        if ($typId) {
+            $qb->andWhere('k.id = :typId')
+                ->setParameter('typId', $typId);
+        }
+
+        return $qb
+            ->orderBy('a.cas_zacatku', 'DESC')
             ->setMaxResults($pocet)
             ->getQuery()
             ->getResult();
     }
-    public function najdiAukceKonciBrzy(int $pocet = 6):array
-    {
-        $casTed = new \DateTime();
-        return $this->createQueryBuilder('aukce')
-            ->andWhere('aukce.stav = :stav')
-            ->andwhere('aukce.cas_konce > :casTed')
-            ->setParameter('stav', 'aktivni')
-            ->setParameter('casTed', $casTed)
-            ->orderBy('aukce.cas_konce', 'ASC')
-            ->setMaxResults($pocet)
-            ->getQuery()
-            ->getResult();
-    }
-    public function najdiAktivniAukce()
+    //  Vrátí aukce, kterým se blíží konec.
+    public function najdiAukceKonciBrzy(int $pocet = 6, ?int $typId = null): array
     {
         $aktualniCas = new \DateTime();
-        return $this->createQueryBuilder('a')
+
+        $qb = $this->createQueryBuilder('a')
+            ->leftJoin('a.aukceKategorie', 'ak')
+            ->leftJoin('ak.kategorie', 'k')
             ->where('a.stav = :stav')
             ->andWhere('a.cas_konce > :aktualniCas')
+            ->andWhere('a.skryta = false')
             ->setParameter('stav', 'aktivni')
-            ->setParameter('aktualniCas', $aktualniCas)
+            ->setParameter('aktualniCas', $aktualniCas);
+
+        if ($typId) {
+            $qb->andWhere('k.id = :typId')
+                ->setParameter('typId', $typId);
+        }
+
+        return $qb
             ->orderBy('a.cas_konce', 'ASC')
+            ->setMaxResults($pocet)
             ->getQuery()
             ->getResult();
     }
-    public function najdiUkonceneAukce()
+    //  Vyhledá aktivní aukce podle textu a volitelných filtrů.
+    public function vyhledatAktivni(?string $dotaz, ?int $typId = null): array
     {
-        $aktualniCas = new \DateTime();
-        return $this->createQueryBuilder('a')
-            ->where('a.cas_konce <= :aktualniCas')
-            ->setParameter('aktualniCas', $aktualniCas)
+        $qb = $this->createQueryBuilder('a')
+            ->select('DISTINCT a')
+            ->leftJoin('a.aukceKategorie', 'ak')
+            ->leftJoin('ak.kategorie', 'k')
+            ->addSelect('ak', 'k')
+            ->where('a.stav = :stav')
+            ->andWhere('a.skryta = false')
+            ->setParameter('stav', 'aktivni');
+
+        if ($dotaz) {
+            $qb->andWhere('a.nazev LIKE :q OR a.popis LIKE :q')
+                ->setParameter('q', '%' . $dotaz . '%');
+        }
+
+        if($typId) {
+            $qb->andWhere('k.id = :typId')
+                ->setParameter('typId', $typId);
+        }
+
+        return $qb
+            ->orderBy('a.cas_zacatku', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+    //  Vrátí aktivní aukce přihlášeného uživatele filtrované podle kategorie.
+    public function najdiMojeAktivniPodleKategorie(int $uzivatelId, ?int $typId): array {
+        $qb = $this->createQueryBuilder('a')
+            ->leftJoin('a.aukceKategorie', 'ak')
+            ->leftJoin('ak.kategorie', 'k')
+            ->andWhere('a.uzivatel = :uzivatel')
+            ->andWhere('a.skryta = false')
+            ->setParameter('uzivatel', $uzivatelId);
+
+        if ($typId) {
+            $qb->andWhere('k.id = :typId')
+                ->setParameter('typId', $typId);
+        }
+
+        return $qb
             ->orderBy('a.cas_konce', 'DESC')
             ->getQuery()
             ->getResult();
     }
-
 }

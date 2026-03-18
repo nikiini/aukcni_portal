@@ -1,20 +1,87 @@
 {% extends 'base.html.twig' %}
 {% block title %}Moje notifikace{% endblock %}
+
 {% block body %}
-<div class="karta">
-    <h1>Notifikace</h1>
+    <div class="karta">
+        <h1>Notifikace</h1>
 
-    {% if notifikace is not empty %}
-        {% for jednaNotifikace in notifikace %}
-        <div class="notifikace {% if jednaNotifikace.stav == 'nova' %}notifikace-nova{% endif %}" style="margin-bottom:16px;">
-
-        <p style="margin-bottom: 6px;">{{ jednaNotifikace.text }}</p>
-
-        <small style="color: #64748b;">{{ jednaNotifikace.vytvoreno|date('d.m.Y H:i') }}</small>
+        <div class="aukce-filtry">
+            <button class="filtr-button akce-aktivni" data-filtr="vse">Všechny</button>
+            <button class="filtr-button" data-filtr="komentar">Komentáře</button>
+            <button class="filtr-button" data-filtr="prihod">Příhozy</button>
+            <button class="filtr-button" data-filtr="vyhra">Výhry</button>
         </div>
-        {% endfor %}
-    {% else %}
-        <p>Nemáte žádné notifikace.</p>
-    {% endif %}
-</div>
+
+        {% if notifikace is not empty %}
+            {% for jednaNotifikace in notifikace %}
+                <div class="notifikace {% if jednaNotifikace.stav == 'nova' %}notifikace-nova{% endif %}"
+                     data-text="{{ jednaNotifikace.text|lower }}"
+                     style="margin-bottom:16px;">
+
+                    {% set casti = jednaNotifikace.text|split('|AUKCE|') %}
+                    {% if casti|length == 2 %}
+                        {% set aukceData = casti[1]|split('|') %}
+
+                        <p style="margin-bottom:6px;">
+                            {{ casti[0] }}
+                            <a href="{{ path('aukce_detail', {verejneId: aukceData[1]}) }}">
+                                "{{ aukceData[0] }}"
+                            </a>
+                        </p>
+                    {% else %}
+                        <p style="margin-bottom:6px;">{{ jednaNotifikace.text }}</p>
+                    {% endif %}
+
+                    <small style="color: #64748b;">
+                        {{ jednaNotifikace.vytvoreno|date('d.m.Y H:i') }}
+                    </small>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>Nemáte žádné notifikace.</p>
+        {% endif %}
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+
+            const filtry = document.querySelectorAll(".filtr-button");
+            const notifikace = document.querySelectorAll(".notifikace");
+
+            filtry.forEach(button => {
+                button.addEventListener("click", function() {
+
+                    filtry.forEach(b => b.classList.remove("akce-aktivni"));
+                    this.classList.add("akce-aktivni");
+
+                    const filtr = this.dataset.filtr;
+
+                    notifikace.forEach(n => {
+
+                        const text = n.dataset.text;
+
+                        if (filtr === "vse") {
+                            n.style.display = "block";
+                        }
+                        else if (filtr === "komentar" && text.includes("koment")) {
+                            n.style.display = "block";
+                        }
+                        else if (filtr === "prihod" && text.includes("přihozeno")) {
+                            n.style.display = "block";
+                        }
+                        else if (filtr === "vyhra" && text.includes("vyhr")) {
+                            n.style.display = "block";
+                        }
+                        else {
+                            n.style.display = "none";
+                        }
+
+                    });
+
+                });
+            });
+
+        });
+    </script>
+
 {% endblock %}

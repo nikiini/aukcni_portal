@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class StatistikyController extends AbstractController{
+    //  Vypočítá a zobrazí statistiky přihlášeného uživatele.
     #[Route('/statistiky', name: 'uzivatel_statistiky')]
     public function index(AukceRepository $aukceRepository,
                           SazkyRepository $sazkyRepository,

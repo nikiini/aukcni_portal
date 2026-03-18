@@ -1,0 +1,21 @@
+{% extends "email/layout.html.twig" %}
+{% block obsah %}
+    <h2>Gratulujeme k výhře aukce!</h2>
+
+    <p>
+        Dobrý den {{ uzivatel.celeJmeno }},
+    </p>
+
+    <p>
+        vyhrál(a) jste aukci <strong>{{ aukce.nazev }}</strong>.
+    </p>
+
+    <p>
+        Kontaktujte prosím autora aukce pro domluvu předání.
+    </p>
+
+    <p>
+        S pozdravem<br>
+        Aukční portál
+    </p>
+{% endblock %}

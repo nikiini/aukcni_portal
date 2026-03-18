@@ -3,14 +3,17 @@
 {% block body %}
 <div class="karta">
     <h1>Úprava profilu</h1>
-    <div class="karta">
         {{ form_start(formular) }}
+    <div class="profil-uprava-grid">
         {{ form_row(formular.cele_jmeno) }}
+        {{ form_row(formular.uzivatelske_jmeno) }}
         {{ form_row(formular.email) }}
-        <button type="submit">Uložit změny</button>
-        {{ form_end(formular) }}
-        <br>
+        {{ form_row(formular.profilFoto) }}
+    </div>
+    <div class="form-actions">
+        <button type="submit">Uložit změny</button><br>
         <a href="{{ path('profil') }}" class="button button-secondary">Zrušit</a>
     </div>
+    {{ form_end(formular) }}
 </div>
 {% endblock %}

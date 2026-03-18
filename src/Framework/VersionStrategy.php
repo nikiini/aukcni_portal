@@ -8,17 +8,17 @@ class VersionStrategy implements VersionStrategyInterface
 {
     /** @var string|null */
     private $version;
-
+    //  Nastaví cestu ke konfiguračnímu souboru s verzí assetů.
     public function __construct(string $assetBaseDir, string $versionLinkWildCard)
     {
         $this->version = $this->detectVersion($assetBaseDir, $versionLinkWildCard);
     }
-
+    // Vrátí aktuální verzi assetů pro cache busting.
     public function getVersion(string $path): string
     {
         return $this->version;
     }
-
+    //  Připojí verzi k URL assetu.
     public function applyVersion(string $path): string
     {
         if ($this->version !== null) {
@@ -27,7 +27,7 @@ class VersionStrategy implements VersionStrategyInterface
             return $path;
         }
     }
-
+    //  Zkusí zjistit verzi z konfiguračního souboru nebo z času změny.
     private function detectVersion(string $assetBaseDir, string $versionWildCard): ?string
     {
         $cwd = getcwd();

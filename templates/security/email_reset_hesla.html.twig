@@ -1,0 +1,16 @@
+{% extends 'email/layout.html.twig' %}
+{% block content %}
+    <p>Dobrý den {{ uzivatel.celeJmeno }},</p>
+    <p>
+        Byla podána žádost o změnu hesla.
+    </p>
+    <p>
+        Pro nastavení nového hesla klikněte na odkaz:
+    </p>
+    <p>
+        <a href="{{ resetUrl }}">Obnovit heslo</a>
+    </p>
+    <p>
+        Pokud jste tuto žádost nepodali, tento e-mail ignorujte.
+    </p>
+{% endblock %}

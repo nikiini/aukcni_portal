@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nahlásit problém{% endblock %}
+
+{% block body %}
+
+    <section class="auth-card">
+
+        <h1>Nahlásit problém s aukcí</h1>
+
+        <p>
+            Pokud došlo k nezdárnému průběhu aukce, můžete situaci nahlásit administrátorovi.
+            Administrátor případ manuálně prověří.
+        </p>
+
+        <form method="post">
+            <input type="hidden"
+                   name="_token"
+                   value="{{ csrf_token('report_' ~ aukce.verejneId) }}">
+
+            <div class="form-group">
+                <label>Důvod nahlášení</label>
+
+                <textarea name="duvod" required rows="5"></textarea>
+            </div>
+
+            <div class="form-actions">
+                <button class="button">Odeslat nahlášení</button>
+            </div>
+
+        </form>
+
+    </section>
+
+{% endblock %}

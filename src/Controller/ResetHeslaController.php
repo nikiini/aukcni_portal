@@ -14,39 +14,45 @@
 
  class ResetHeslaController extends AbstractController
  {
-     #[Route('/reset-hesla', name: 'reset_hesla_zadost')]
+     // Přijme žádost o reset hesla a odešle uživateli odkaz pro změnu hesla.
+     #[Route('/reset-hesla/zadost', name: 'reset_hesla_zadost')]
      public function zadost(Request $request, EntityManagerInterface $entityManager, MailerInterface $mailer): Response
      {
          if ($request->isMethod('POST')) {
-             $emailInput = trim((string)$request->request->get('email'));
+             $email = trim((string)$request->request->get('email', ''));
 
-             if ($emailInput !== '') {
+             if ($email === '') {
                  $this->addFlash('error', 'Zadejte e-mail.');
                  return $this->redirectToRoute('reset_hesla_zadost');
              }
-             $uzivatel = $entityManager->getRepository(Uzivatel::class)->findOneBy(['email' => $emailInput]);
+             $uzivatel = $entityManager->getRepository(Uzivatel::class)->findOneBy(['email' => $email]);
 
              if (!$uzivatel) {
-                 $this->addFlash('error', 'Účet s tímto e-mailem nenalezen.');
-                 return $this->redirectToRoute('reset_hesla_zadost');
+                 $this->addFlash('success', 'Pokud byl e-mail nalezen, byl na něj odeslán odkaz pro změnu hesla.');
+                 return $this->redirectToRoute('app_login');
              }
 
              $token = bin2hex(random_bytes(32));
-             $expiresAt = (new \DateTime())->modify('+1 hour');
-
              $uzivatel->setResetToken($token);
-             $uzivatel->setResetTokenExpiresAt($expiresAt);
+             $uzivatel->setResetTokenExpiresAt((new \DateTime())->modify('+30 minutes'));
+
              $entityManager->flush();
 
-             $resetUrl = $this->generateUrl('reset_hesla_nove', ['token' => $token], UrlGeneratorInterface::ABSOLUTE_URL);
+             $link = $this->generateUrl('reset_hesla_nove', ['token' => $token], UrlGeneratorInterface::ABSOLUTE_URL);
 
-             $email = (new Email())
-                 ->from('no-reply@aukce.test')
+             $emailObj = (new Email())
+                 ->from('tester.aukce@gmail.com')
+                 ->replyTo('no-reply@aukce.test') // v googlu se ale bude vypisovat jako tester.aukce kvůli googlu a ověření SMTP
                  ->to($uzivatel->getEmail())
-                 ->subject('Obnovení hesla')
-                 ->html($this->renderView('security/email_reset_hesla.html.twig', ['uzivatel' => $uzivatel, 'resetUrl' => $resetUrl]));
+                 ->subject('Obnovení hesla - Aukční portál')
+                 ->html($this->renderView('security/email_reset_hesla.html.twig', ['uzivatel' => $uzivatel, 'resetUrl' => $link]));
 
-             $mailer->send($email);
+             try {
+                 $mailer->send($emailObj);
+             } catch (\Throwable $e) {
+                 $this->addFlash('error', 'Nepodařilo se odeslat e-mail pro obnovu hesla. Zkuste to prosím znovu později.');
+                 return $this->redirectToRoute('reset_hesla_zadost');
+             }
 
              $this->addFlash('success', 'Na Váš e-mail byl odeslán odkaz pro obnovení hesla.');
              return $this->redirectToRoute('app_login');
@@ -55,15 +61,18 @@
          return $this->render('security/reset_hesla_zadost.html.twig');
      }
 
+     //  Ověří reset token a uloží nové heslo uživatele.
      #[Route('/reset-hesla/{token}', name: 'reset_hesla_nove')]
      public function nove(string $token, Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher): Response{
          $uzivatel = $entityManager->getRepository(Uzivatel::class)->findOneBy(['reset_token' => $token]);
+
          if (!$uzivatel) {
-             $this->addFlash('error', 'Neplatný nebo již použitý odkaz.');
+             $this->addFlash('error', 'Odkaz pro reset hesla je neplatný.');
              return $this->redirectToRoute('app_login');
          }
+
          $ted = new \DateTime();
-         if($uzivatel->getResetTokenExpiresAt() === null || $uzivatel->getResetTokenExpiresAt() < $ted){
+         if ($uzivatel->getResetTokenExpiresAt() === null || $uzivatel->getResetTokenExpiresAt() < $ted) {
              $this->addFlash('error', 'Platnost odkazu vypršela. Požádejte o nový.');
              $uzivatel->setResetToken(null);
              $uzivatel->setResetTokenExpiresAt(null);
@@ -73,6 +82,10 @@
          }
 
          if($request->isMethod('POST')) {
+             if (!$this->isCsrfTokenValid('reset_hesla', $request->request->get('_token'))) {
+                 throw $this->createAccessDeniedException('Neplatný CSRF token.');
+             }
+
              $heslo = (string)$request->request->get('heslo');
              $heslo2 = (string)$request->request->get('heslo2');
 
@@ -86,6 +99,10 @@
              }
              if(mb_strlen($heslo)<8 ){
                  $this->addFlash('error', 'Heslo musí mít alespoň 8 znaků.');
+                 return $this->redirectToRoute('reset_hesla_nove', ['token' => $token]);
+             }
+             if (!preg_match('/\d/', $heslo)) {
+                 $this->addFlash('error', 'Heslo musí obsahovat alespoň jedno číslo.');
                  return $this->redirectToRoute('reset_hesla_nove', ['token' => $token]);
              }
              $uzivatel->setHeslo($passwordHasher->hashPassword($uzivatel, $heslo));

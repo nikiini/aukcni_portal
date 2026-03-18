@@ -1,16 +1,17 @@
 <?php
 namespace App\Security;
 use App\Entity\Uzivatel;
-use Couchbase\UserManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class EmailNeboUsernameProvider implements UserProviderInterface{
+    //  Přijme repozitář uživatelů pro načítání identity.
     public function __construct(private EntityManagerInterface $spravceEntit){
 
     }
+    //  Umožní přihlášení pomocí e-mailu nebo uživatelského jména.
     public function loadUserByIdentifier(string $identifikator): UserInterface{
         //podle emailu
         $uzivatel = $this->spravceEntit
@@ -26,12 +27,14 @@ class EmailNeboUsernameProvider implements UserProviderInterface{
         if(!$uzivatel){
             throw new UserNotFoundException('Uživatel nebyl nalezen.');
         }
+
         return $uzivatel;
     }
+    //  Obnoví instanci uživatele po přihlášení.
     public function refreshUser(UserInterface $uzivatel): UserInterface{
         return $uzivatel;
     }
-
+    //  Vrátí, zda provider pracuje s danou třídou uživatele.
     public function supportsClass(string $trida): bool{
         return $trida === Uzivatel::class;
     }

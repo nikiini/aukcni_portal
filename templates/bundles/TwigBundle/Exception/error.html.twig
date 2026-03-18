@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Chyba aplikace{% endblock %}
+
+{% block body %}
+    <div class="karta">
+        <h1>Něco se pokazilo</h1>
+        <p>Omlouváme se, ale při zpracování požadavku došlo k chybě.</p>
+        <p>
+            Zkuste to prosím znovu, nebo se vraťte na
+            <a href="{{ path('domovskaStranka') }}">domovskou stránku</a>.
+        </p>
+    </div>
+{% endblock %}

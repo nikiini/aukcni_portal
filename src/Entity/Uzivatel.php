@@ -24,7 +24,7 @@ class Uzivatel implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255)]
     private ?string $cele_jmeno = null;
 
-    #[ORM\Column(length: 180)]
+    #[ORM\Column(length: 180, unique: true)]
     private ?string $email = null;
 
     #[ORM\Column(length: 255)]
@@ -63,35 +63,42 @@ class Uzivatel implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Komentare::class, mappedBy: 'uzivatel')]
     private Collection $komentare;
 
-    #[ORM\OneToMany(targetEntity: Platby::class, mappedBy: 'uzivatel')]
-    private Collection $platby;
-
-    #[ORM\OneToMany(targetEntity: LogyAukce::class, mappedBy: 'uzivatel')]
-    private Collection $logyAukce;
-
     #[ORM\OneToMany(targetEntity: Notifikace::class, mappedBy: 'uzivatel')]
     private Collection $notifikace;
 
-    #[ORM\OneToMany(targetEntity: Bonusy::class, mappedBy: 'uzivatel')]
-    private Collection $bonusy;
+    #[ORM\Column(type: 'string', length: 64, nullable: true)]
+    private ?string $emailToken = null;
 
-    #[ORM\OneToMany(targetEntity: BlokaceObsahu::class, mappedBy: 'uzivatel')]
-    private Collection $blokaceObsahu;
+    #[ORM\Column(length: 32, unique: true)]
+    private ?string $verejneId = null;
 
-    #[ORM\OneToMany(targetEntity: HistorieKreditu::class, mappedBy: 'uzivatel')]
-    private Collection $historieKreditu;
+    public function getVerejneId(): ?string
+    {
+        return $this->verejneId;
+    }
+
+    public function setVerejneId(string $verejneId): static
+    {
+        $this->verejneId = $verejneId;
+        return $this;
+    }
+    public function getEmailToken(): ?string
+    {
+        return $this->emailToken;
+    }
+
+    public function setEmailToken(?string $emailToken): self
+    {
+        $this->emailToken = $emailToken;
+        return $this;
+    }
 
     public function __construct()
     {
         $this->aukce = new ArrayCollection();
         $this->sazky = new ArrayCollection();
         $this->komentare = new ArrayCollection();
-        $this->platby = new ArrayCollection();
-        $this->logyAukce = new ArrayCollection();
         $this->notifikace = new ArrayCollection();
-        $this->bonusy = new ArrayCollection();
-        $this->blokaceObsahu = new ArrayCollection();
-        $this->historieKreditu = new ArrayCollection();
 
         $this->vytvoreno = new \DateTime();
     }
@@ -99,13 +106,13 @@ class Uzivatel implements UserInterface, PasswordAuthenticatedUserInterface
     //Security
     public function getUserIdentifier(): string
     {
-        return $this->email;
+        return $this->uzivatelske_jmeno;
     }
 
     public function getRoles(): array
     {
-            if ($this->role === 'admin') {
-                return ['ROLE_ADMIN', 'ROLE_USER'];
+            if ($this->role === 'ROLE_ADMIN') {
+                return ['ROLE_ADMIN'];
             }
             return ['ROLE_USER'];
     }
@@ -310,53 +317,6 @@ class Uzivatel implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getPlatby(): Collection
-    {
-        return $this->platby;
-    }
-
-    public function addPlatby(Platby $platby): static
-    {
-        if (!$this->platby->contains($platby)) {
-            $this->platby->add($platby);
-            $platby->setUzivatel($this);
-        }
-        return $this;
-    }
-
-    public function removePlatby(Platby $platby): static
-    {
-        if ($this->platby->removeElement($platby)) {
-            if ($platby->getUzivatel() === $this) {
-                $platby->setUzivatel(null);
-            }
-        }
-        return $this;
-    }
-
-    public function getLogyAukce(): Collection
-    {
-        return $this->logyAukce;
-    }
-
-    public function addLogyAukce(LogyAukce $logyAukce): static
-    {
-        if (!$this->logyAukce->contains($logyAukce)) {
-            $this->logyAukce->add($logyAukce);
-            $logyAukce->setUzivatel($this);
-        }
-        return $this;
-    }
-
-    public function removeLogyAukce(LogyAukce $logyAukce): static
-    {
-        if ($this->logyAukce->removeElement($logyAukce)) {
-            if ($logyAukce->getUzivatel() === $this) {
-                $logyAukce->setUzivatel(null);
-            }
-        }
-        return $this;
-    }
 
     public function getNotifikace(): Collection
     {
@@ -382,77 +342,6 @@ class Uzivatel implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getBonusy(): Collection
-    {
-        return $this->bonusy;
-    }
-
-    public function addBonusy(Bonusy $bonusy): static
-    {
-        if (!$this->bonusy->contains($bonusy)) {
-            $this->bonusy->add($bonusy);
-            $bonusy->setUzivatel($this);
-        }
-        return $this;
-    }
-
-    public function removeBonusy(Bonusy $bonusy): static
-    {
-        if ($this->bonusy->removeElement($bonusy)) {
-            if ($bonusy->getUzivatel() === $this) {
-                $bonusy->setUzivatel(null);
-            }
-        }
-        return $this;
-    }
-
-    public function getBlokaceObsahu(): Collection
-    {
-        return $this->blokaceObsahu;
-    }
-
-    public function addBlokaceObsahu(BlokaceObsahu $blokaceObsahu): static
-    {
-        if (!$this->blokaceObsahu->contains($blokaceObsahu)) {
-            $this->blokaceObsahu->add($blokaceObsahu);
-            $blokaceObsahu->setUzivatel($this);
-        }
-        return $this;
-    }
-
-    public function removeBlokaceObsahu(BlokaceObsahu $blokaceObsahu): static
-    {
-        if ($this->blokaceObsahu->removeElement($blokaceObsahu)) {
-            if ($blokaceObsahu->getUzivatel() === $this) {
-                $blokaceObsahu->setUzivatel(null);
-            }
-        }
-        return $this;
-    }
-
-    public function getHistorieKreditu(): Collection
-    {
-        return $this->historieKreditu;
-    }
-
-    public function addHistorieKreditu(HistorieKreditu $historieKreditu): static
-    {
-        if (!$this->historieKreditu->contains($historieKreditu)) {
-            $this->historieKreditu->add($historieKreditu);
-            $historieKreditu->setUzivatel($this);
-        }
-        return $this;
-    }
-
-    public function removeHistorieKreditu(HistorieKreditu $historieKreditu): static
-    {
-        if ($this->historieKreditu->removeElement($historieKreditu)) {
-            if ($historieKreditu->getUzivatel() === $this) {
-                $historieKreditu->setUzivatel(null);
-            }
-        }
-        return $this;
-    }
     public function getResetToken(): ?string
     {
         return $this->reset_token;

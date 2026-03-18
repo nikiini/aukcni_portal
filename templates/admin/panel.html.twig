@@ -1,0 +1,285 @@
+{% extends 'base.html.twig' %}
+{% block title %}Administrace{% endblock %}
+
+{% block body %}
+    <div class="karta">
+        <h1>Administrace</h1>
+        <div class="form-actions" style="margin-bottom:15px;">
+            <a href="{{ path('admin_reporty') }}" class="button">
+                Nahlášené aukce
+            </a>
+        </div>
+        <div class="admin-layout">
+            {# LEVÝ SLOUPEC – UŽIVATELÉ #}
+            <aside class="admin-sidebar">
+                <h2 class="aukce-sidebar-nadpis">Uživatelé</h2>
+
+                <form method="get" action="{{ path('admin_panel') }}" style="margin-bottom: 0.75rem;">
+                    <input type="text" name="q" id="admin-search"placeholder="Hledat jméno nebo e-mail…" value="{{ hledani }}">
+                </form>
+
+                {% if uzivatele is empty %}
+                    <p>Žádní uživatelé.</p>
+                {% else %}
+                    <table class="admin-tabulka">
+                        <thead>
+                        <tr>
+                            <th>Jméno</th>
+                            <th>E-mail</th>
+                            <th>Role</th>
+                            <th>Stav</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for u in uzivatele %}
+                            <tr {% if vybranyUzivatel and u.id == vybranyUzivatel.id %}style="background: rgba(79,70,229,0.08);" {% endif %}>
+                                <td>
+                                    <a href="{{ path('admin_panel', {u: u.verejneId, q: hledani}) }}">
+                                        {{ u.celeJmeno }}{% if u.uzivatelskeJmeno %} ({{ u.uzivatelskeJmeno }}){% endif %}
+                                    </a>
+                                </td>
+                                <td>{{ u.email }}</td>
+                                <td>
+                                    {% if u.role == 'ROLE_ADMIN' %}
+                                        <span class="badge-kategorie">Admin</span>
+                                    {% else %}
+                                        Uživatel
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if u.isBlokovan %}
+                                        <span style="color:#ef4444;font-weight:600;">Blokován</span>
+                                    {% else %}
+                                        <span style="color:#22c55e;font-weight:600;">Aktivní</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            </aside>
+
+            {# PRAVÝ SLOUPEC – DETAIL UŽIVATELE + AKTIVITY #}
+            <div class="admin-content">
+                {% if not vybranyUzivatel %}
+                    <p>Vyberte uživatele vlevo pro zobrazení detailu.</p>
+                {% else %}
+                    <div class="karta" style="margin-top:0;">
+                        <div class="aukce-hlavicka">
+                            <h2>{{ vybranyUzivatel.celeJmeno }}</h2>
+
+                            <div class="form-actions">
+                                {% if vybranyUzivatel.role != 'ROLE_ADMIN' %}
+                                    {% if vybranyUzivatel.isBlokovan %}
+                                <form method="post" action="{{ path('admin_uzivatel_odblokovat', {verejneId: vybranyUzivatel.verejneId}) }}" onsubmit="return confirm('Opravdu chcete tohoto uživatele odblokovat?');" style="display:inline;">
+
+                                    <input type="hidden" name="_token" value="{{ csrf_token('odblokuj_' ~ vybranyUzivatel.id) }}">
+
+                                    <button type="submit" class="button-secondary">
+                                        Odblokovat
+                                    </button>
+                                </form>
+                                    {% else %}
+                                        <div class="form-actions" id="blokaceSekce">
+
+                                            {# === VÝCHOZÍ STAV === #}
+                                            <div id="blokaceVychozi">
+                                                <button type="button"
+                                                        class="btn-danger"
+                                                        onclick="zobrazitBlokaci()">
+                                                    Zablokovat
+                                                </button>
+
+                                                <a href="{{ path('admin_uzivatel_upravit', {verejneId: vybranyUzivatel.verejneId}) }}" class="button-secondary">
+                                                    Upravit profil
+                                                </a>
+                                            </div>
+
+                                            {# === ROZBALENÁ BLOKACE === #}
+                                            <div id="blokaceFormular" style="display:none; margin-top:10px;">
+                                                <form method="post" action="{{ path('admin_uzivatel_blokovat', {verejneId: vybranyUzivatel.verejneId}) }}">
+
+                                                    <input type="hidden" name="_token"
+                                                           value="{{ csrf_token('blokuj_' ~ vybranyUzivatel.id) }}">
+
+                                                    <label>Důvod blokace:</label>
+                                                    <select name="duvod">
+                                                        <option value="">Neuvést důvod</option>
+                                                        <option value="Porušení pravidel">Porušení pravidel</option>
+                                                        <option value="Nevhodné chování">Nevhodné chování</option>
+                                                        <option value="Podvodné jednání">Podvodné jednání</option>
+                                                        <option value="Spam">Spam</option>
+                                                    </select>
+
+                                                    <div style="margin-top:8px;">
+                                                        <button type="submit" class="btn-danger">
+                                                            Potvrdit blokování
+                                                        </button>
+
+                                                        <button type="button"
+                                                                onclick="zrusitBlokaci()"
+                                                                class="button-secondary">
+                                                            Zrušit
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <p><strong>E-mail:</strong> {{ vybranyUzivatel.email }}</p>
+                        <p><strong>Role:</strong> {{ vybranyUzivatel.role == 'ROLE_ADMIN' ? 'Administrátor' : 'Uživatel' }}</p>
+                        <p><strong>Kredity:</strong> {{ vybranyUzivatel.kredity }} Kč</p>
+                        <p>
+                            <strong>Stav:</strong>
+                            {% if vybranyUzivatel.isBlokovan %}
+                                <span style="color:#ef4444;font-weight:600;">Blokován</span>
+                            {% else %}
+                                <span style="color:#22c55e;font-weight:600;">Aktivní</span>
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <div class="karta">
+                        <h3>Aukce uživatele</h3>
+                        {% if aukceUzivatele is empty %}
+                            <p>Tento uživatel zatím nevytvořil žádné aukce.</p>
+                        {% else %}
+                            <table class="admin-tabulka">
+                                <thead>
+                                <tr>
+                                    <th>Název</th>
+                                    <th>Stav</th>
+                                    <th>Začátek</th>
+                                    <th>Konec</th>
+                                    <th>Akce</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for aukcePolozka in aukceUzivatele %}
+                                    <tr>
+                                        <td onclick="window.location.href='{{ path('aukce_detail', {verejneId: aukcePolozka.verejneId}) }}';">
+                                            {{ aukcePolozka.nazev }}
+                                        </td>
+
+                                        <td>{{ aukcePolozka.stav }}</td>
+
+                                        <td>{{ aukcePolozka.casZacatku ? aukcePolozka.casZacatku|date('d.m.Y H:i') : '-' }}</td>
+
+                                        <td>{{ aukcePolozka.casKonce ? aukcePolozka.casKonce|date('d.m.Y H:i') : '-' }}</td>
+
+                                        <td onclick="event.stopPropagation();">
+
+                                            <div class="admin-akce">
+
+                                                <a href="{{ path('admin_aukce_upravit', {verejneId: aukcePolozka.verejneId}) }}"
+                                                   class="button-secondary button-small">
+                                                    Upravit
+                                                </a>
+
+                                                <form method="post"
+                                                      action="{{ path('admin_aukce_smazat', {verejneId: aukcePolozka.verejneId}) }}"
+                                                      style="display:inline;"
+                                                      onsubmit="return confirm('Opravdu chcete tuto aukci smazat?');">
+
+                                                    <input type="hidden"
+                                                           name="_token"
+                                                           value="{{ csrf_token('smaz_aukci_' ~ aukcePolozka.id) }}">
+
+                                                    <button type="submit" class="btn-danger btn-danger-small">
+                                                        Smazat
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        {% endif %}
+                    </div>
+
+                    <div class="karta">
+                        <h3>Příhozy uživatele</h3>
+                        {% if sazkyUzivatele is empty %}
+                            <p>Tento uživatel zatím nepřihazoval.</p>
+                        {% else %}
+                            <table class="admin-tabulka">
+                                <thead>
+                                <tr>
+                                    <th>Aukce</th>
+                                    <th>Částka</th>
+                                    <th>Čas</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for sazkaPolozka in sazkyUzivatele %}
+                                    <tr onclick="window.location.href='{{ path('aukce_detail', {verejneId: sazkaPolozka.aukce.verejneId}) }}';">
+                                        <td>{{ sazkaPolozka.aukce.nazev }}</td>
+                                        <td>{{ sazkaPolozka.castka }} Kč</td>
+                                        <td>{{ sazkaPolozka.vytvoreno ? sazkaPolozka.vytvoreno|date('d.m.Y H:i') : '-' }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        {% endif %}
+                    </div>
+
+                    <div class="karta">
+                        <h3>Komentáře uživatele</h3>
+                        {% if komentareUzivatele is empty %}
+                            <p>Tento uživatel zatím nepřidal žádné komentáře.</p>
+                        {% else %}
+                            <table class="admin-tabulka">
+                                <thead>
+                                <tr>
+                                    <th>Aukce</th>
+                                    <th>Komentář</th>
+                                    <th>Hodnocení</th>
+                                    <th>Čas</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for komentarPolozka in komentareUzivatele %}
+                                    <tr onclick="window.location.href='{{ path('aukce_detail', {verejneId: komentarPolozka.aukce.verejneId}) }}';">
+                                        <td>{{ komentarPolozka.aukce.nazev }}</td>
+                                        <td>{{ komentarPolozka.text|length > 80 ? komentarPolozka.text|slice(0,77) ~ '…' : komentarPolozka.text }}</td>
+                                        <td>{{ komentarPolozka.hodnoceni is not null ? komentarPolozka.hodnoceni ~ '/5' : '-' }}</td>
+                                        <td>{{ komentarPolozka.vytvoreno ? komentarPolozka.vytvoreno|date('d.m.Y H:i') : '-' }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const input = document.querySelector("#admin-search");
+
+            if (!input) return;
+
+            input.addEventListener("input", function () {
+                if (this.value.trim() === "") {
+                    window.location.href = window.location.pathname;
+                }
+            });
+        });
+        function zobrazitBlokaci() {
+            document.getElementById('blokaceVychozi').style.display = 'none';
+            document.getElementById('blokaceFormular').style.display = 'block';
+        }
+
+        function zrusitBlokaci() {
+            document.getElementById('blokaceFormular').style.display = 'none';
+            document.getElementById('blokaceVychozi').style.display = 'block';
+        }
+    </script>
+{% endblock %}

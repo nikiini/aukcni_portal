@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+{% block title %}Nové heslo{% endblock %}
+{% block body %}
+<div class="karta">
+    <h1>Nové heslo</h1>
+    <p>Zadejte nové heslo ke svému účtu.</p>
+    <form method="post" action="{{ path('reset_hesla_nove', { token: token }) }}">
+        <label for="heslo">Nové heslo</label>
+        <input type="password" id="heslo" name="heslo" required>
+
+        <label for="heslo2">Nové heslo znovu</label>
+        <input type="password" id="heslo2" name="heslo2" required>
+
+        <input type="hidden" name="_token" value="{{ csrf_token('reset_hesla') }}">
+
+        <div class="form-actions">
+            <button type="submit" class="button">Uložit nové heslo</button>
+        </div>
+     </form>
+</div>
+{% endblock %}

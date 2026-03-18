@@ -9,10 +9,22 @@
 {{ form_start(registraceForm) }}
 
 {{ form_row(registraceForm.uzivatelske_jmeno) }}
+        {{ form_row(registraceForm.cele_jmeno) }}
 {{ form_row(registraceForm.email) }}
 {{ form_row(registraceForm.heslo) }}
-
+<div class="form-group" style="margin-top: 10px;">
+    <label style="font-size: 13px;">
+        <input type="checkbox" name="souhlas18">
+        Potvrzuji, že mi je 18 a více let.
+    </label>
+    <p style="font-size: 11px; color: #64748b;margin-top: 4px;">
+        Aukční portál je určen pouze pro uživatele starší 18 let.
+    </p>
+</div>
 <button type="submit">Registrovat</button>
+        <p style="margin: 0.5rem 0 1rem 0; font-size: 13px;">
+            Už máte účet?<br><a href="{{ path('app_login') }}" class="button" style="margin-top: 2px;"> Přihlásit se</a>
+        </p>
         <a href="{{ path('app_login') }}" class="button button-secondary">Zrušit</a>
 {{ form_end(registraceForm) }}
     </div>

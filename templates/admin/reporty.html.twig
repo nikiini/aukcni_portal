@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nahlášené aukce{% endblock %}
+{% block body %}
+    <div class="karta">
+
+        <h1>Nahlášené aukce</h1>
+        {% if reporty is empty %}
+            <p>Momentálně nejsou žádná nahlášení.</p>
+        {% else %}
+            <table class="admin-tabulka">
+                <thead>
+                <tr>
+                    <th>Aukce</th>
+                    <th>Nahlásil</th>
+                    <th>Důvod</th>
+                    <th>Čas</th>
+                    <th>Detail</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for r in reporty %}
+                    <tr>
+                        <td>{{ r.aukce.nazev }}</td>
+                        <td>{{ r.nahlasujici.celeJmeno }}</td>
+                        <td>{{ r.duvod ?: '-' }}</td>
+                        <td>{{ r.vytvoreno|date('d.m.Y H:i') }}</td>
+                        <td>
+                            <a href="{{ path('aukce_detail', {verejneId: r.aukce.verejneId}) }}" class="button-secondary button-small">
+                                Zobrazit aukci
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+{% endblock %}

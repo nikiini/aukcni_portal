@@ -1,0 +1,11 @@
+{% extends 'email/layout.html.twig' %}
+{% block content %}
+    <p>Dobrý den {{ jmeno }},</p>
+    <p>
+        Váš účet ({{ email }}) byl automaticky odstraněn,
+        protože nebyl ověřen do 3 dnů od registrace.
+    </p>
+    <p>
+        Pokud se jednalo o omyl, můžete se kdykoliv znovu zaregistrovat.
+    </p>
+{% endblock %}

@@ -8,6 +8,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
 
 class NotifikaceController extends AbstractController{
+    //  Zobrazí notifikace aktuálně přihlášeného uživatele.
     #[Route ('/notifikace', name:'notifikace')]
     public function index(NotifikaceRepository $notifikaceRepository, EntityManagerInterface $entityManager): Response{
         $uzivatel = $this->getUser();

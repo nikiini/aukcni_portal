@@ -11,6 +11,12 @@
     --barva-hlavni-hover: #4338ca;
     --barva-sekundarni: #6366f1;
 
+    --barva-gradient-jemny: linear-gradient(135deg, rgba(79,70,229,0.08), rgba(99,102,241,0.08));
+    --barva-gradient-silny: linear-gradient(135deg, #4f46e5, #6366f1);
+    --barva-surface-soft: rgba(148,163,184,0.06);
+    --barva-border-soft: rgba(148,163,184,0.25);
+    --stiny-premium: 0 20px 60px rgba(15,23,42,0.12);
+    --radius-xl: 28px;
 
     --barva-success: #22c55e;
     --barva-warning: #f59e0b;
@@ -68,7 +74,7 @@ body{
     min-height: 100vh;
 }
 .obsah{
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 24px auto 40px auto;
     padding: 0 20px;
 }
@@ -84,13 +90,20 @@ header{
     position: sticky;
     top: 0;
     z-index: 50;
-    background: linear-gradient(120deg, #020617, #111827);
-    color: #FFFFFF;
+
+    background: rgba(15, 23, 42, 0.78);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    color: var(--barva-text);
+
     padding: 16px 32px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 10px 30px rgba(15,23,42,0.7);
+
+    border-bottom: 1px solid rgba(148,163,184,0.25);
+    box-shadow: 0 10px 30px rgba(15,23,42,0.45);
 }
 
 .header-levy{
@@ -109,7 +122,115 @@ header{
     linear-gradient(135deg, #4f46e5, #22c55e);
     box-shadow: 0 10px 25px rgba(129,140,248,0.8);
 }
+.header-text{
+    display: flex;
+    flex-direction: column;
+}
+.header-nazev{
+    font-size: 16px;
+    text-transform: uppercase;
+}
+.header-podnazev{
+    font-size: 12px;
+    opacity: 0.75;
+}
+.nav-item-wrapper {
+    position: relative;
+    display: inline-block;
+}
+nav {
+    position: relative;
+}
+.nav-item {
+    position: relative;
+}
+.nav-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
 
+    width: 340px;
+    max-height: 420px;
+    overflow-y: auto;
+
+    background: var(--barva-karta);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--barva-okraju-jemna);
+
+    box-shadow: var(--stiny-velke);
+
+    padding: 18px;
+
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(8px);
+    transition: all 0.25s ease;
+
+    z-index: 9999;
+}
+
+.nav-dropdown-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.nav-dropdown-content a {
+    padding: 0.4rem 0.6rem;
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--barva-text);
+    font-size: 0.9rem;
+}
+
+.nav-dropdown-content a:hover {
+    background: #eef2ff;
+}
+
+.nav-item-wrapper:hover .nav-dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+.nav-container{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+
+.nav-toggle{
+    display:none;
+    font-size:24px;
+    background:none;
+    border:none;
+    cursor:pointer;
+}
+
+
+.navigace{
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.navigace-odkazy{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: flex-end;
+}
+header{
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--barva-gradient-jemny);
+    color: var(--barva-text);
+    padding: 16px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--stiny-male);
+}
 header nav{
     display: flex;
     flex-wrap: wrap;
@@ -118,21 +239,78 @@ header nav{
 }
 
 header nav a{
-    color: #e5e7eb;
+    color: var(--barva-text);
     font-size: 14px;
     padding: 6px 10px;
     border-radius: var(--radius-sm);
-    transition: background var(--transition-fast), transform var(--transition-fast);
+    transition: background var(--transition-fast), transform var(--transition-fast), color var(--transition-fast);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+header nav a:hover{
+    background: rgba(109,124,255,0.12);
+    color: var(--barva-hlavni);
+    transform: translateY(-1px);
+}
+header nav a.aktivni-odkaz{
+    background: rgba(255,255,255,0.16);
+    color: #5d20d8;
 }
 html.dark header nav a{
     color: #e5e7eb;
 }
-header nav a:hover{
-    background: rgba(255,255,255,0.18);
-    transform: translateY(-1px);
-    color: #ffffff;
+html.dark header nav a.aktivni-odkaz{
+    background: rgba(30,64,175,0.95);
 }
 
+.prepni-rezim{
+    border: none;
+    background: var(--barva-karta);
+    padding: 6px 10px;
+    border-radius: var(--radius-pilulka);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--barva-text);
+    box-shadow: var(--stiny-male);
+    transition:
+            background var(--transition-fast),
+            transform var(--transition-fast),
+            box-shadow var(--transition-fast),
+            opacity var(--transition-fast);
+}
+html.dark .prepni-rezim{
+    background: rgba(15,23,42,0.95);
+    color: #e5e7eb;
+}
+.prepni-rezim:hover{
+    background: rgba(30,64,175,0.95);
+    transform: translateY(-1px);
+    box-shadow: var(--stiny-stredni);
+}
+
+.prepni-rezim-ikona{
+    line-height: 1;
+}
+
+.prepni-rezim-ikona-tma{
+    opacity: 0.4;
+}
+
+html.dark .prepni-rezim{
+    background: rgba(15,23,42,0.95);
+}
+
+html.dark .prepni-rezim-ikona-svetlo{
+    opacity: 0.4;
+}
+
+html.dark .prepni-rezim-ikona-tma{
+    opacity: 1;
+}
 [class^="flash-"]{
     border-radius: var(--radius);
     padding: 12px 16px;
@@ -159,15 +337,13 @@ header nav a:hover{
     border: 1px solid rgba(202,138,4,0.65);
     color: #78350f;
 }
-
-.button,
-button{
+.button, button{
     border: none;
     background: linear-gradient(135deg, var(--barva-hlavni), var(--barva-sekundarni));
     color: #ffffff;
     font-weight: 600;
-    font-size: 14px;
-    padding: 10px 20px;
+    font-size: 15px;
+    padding: 12px 22px;
     border-radius: var(--radius-pilulka);
     cursor: pointer;
     display: inline-flex;
@@ -182,16 +358,14 @@ button{
             background var(--transition-fast),
             opacity var(--transition-fast);
 }
-.button:hover,
-button:hover{
+.button:hover, button:hover{
     transform: translateY(-2px);
     box-shadow: var(--stiny-stredni);
     background: linear-gradient(135deg, var(--barva-hlavni-hover), var(--barva-sekundarni));
     opacity: 0.96;
 }
 
-.button:active,
-button:active{
+.button:active, button:active{
     transform: translateY(0);
     box-shadow: var(--stiny-male);
     opacity: 0.9;
@@ -217,45 +391,80 @@ html.dark .button-secondary{
 html.dark .button-secondary:hover{
     background-color: rgba(148,163,184,0.28);
 }
+.detail-layout{
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
+    gap: 32px;
+    align-items: flex-start;
+    margin-top: 20px;
+}
+.detail-levy,
+.detail-pravy{
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+.detail-pravy{
+    position: sticky;
+    top: 120px;
+}
+.detail-aukce-hlavni-info{
+    margin-bottom: 16px;
+    padding: 14px 16px;
+    border-radius: var(--radius);
+    background: var(--barva-surface-soft);
+}
+
+.detail-aukce-hlavni-info p{
+    margin: 0 0 8px 0;
+}
+
+.detail-aukce-hlavni-info p:last-child{
+    margin-bottom: 0;
+}
+.text-success{
+    color: var(--barva-success);
+    font-weight: 600;
+    margin-top: 6px;
+}
+.detail-aukce-hlavni{
+    padding: 28px;
+}
+.detail-aukce-hlavni h1{
+    font-size: 28px;
+    margin-bottom: 12px;
+}
+.stav-aukce{
+    margin-top: 16px;
+}
 .karta{
     position: relative;
-    background: var(--barva-karta);
-    border-radius: var(--radius-lg);
-    padding: 22px 24px;
-    margin-bottom: 22px;
-    box-shadow: var(--stiny-male);
-    border: 1px solid var(--barva-okraju-jemna);
-    overflow: hidden;
+    background: radial-gradient(circle at top left, rgba(79,70,229,0.05), transparent 60%), var(--barva-karta);
+    border-radius: var(--radius-xl);
+    padding: 28px;
+    margin-bottom: 28px;
+    border: 1px solid var(--barva-border-soft);
+    box-shadow: 0 8px 30px rgba(15,23,42,0.06);
     transition:
-            transform var(--transition-fast),
-            box-shadow var(--transition-fast),
-            border-color var(--transition-fast),
-            background var(--transition-fast);
+            transform 0.25s ease,
+            box-shadow 0.25s ease,
+            border-color 0.25s ease;
 }
 .karta.karta-link{
     cursor: pointer;
     text-decoration: none;
     color: inherit;
 }
-.karta::before{
-    content: "";
-    position: absolute;
-    inset: -40%;
-    background: radial-gradient(circle at top left, rgba(129,140,248,0.18), transparent 60%);
-    opacity: 0;
-    transition: opacity var(--transition-fast);
-    pointer-events: none;
-}
 
 .karta:hover{
     transform: translateY(-4px);
-    box-shadow: var(--stiny-stredni);
-    border-color: rgba(129,140,248,0.85);
-}
-.karta:hover::before{
-    opacity: 1;
+    box-shadow: 0 20px 60px rgba(15,23,42,0.12);
+    border-color: rgba(79,70,229,0.35);
 }
 
+.karta + .karta{
+    margin-top: 32px;
+}
 label{
     font-size: 13px;
     color: var(--barva-text-treti);
@@ -315,6 +524,41 @@ textarea:focus{
     margin-top: 28px;
     margin-bottom: 16px;
 }
+.profil-blok{
+    margin-top: 28px;
+}
+.profil-dvojice{
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    column-gap: 24px;
+    row-gap: 14px;
+    margin-top: 14px;
+}
+
+.profil-kredity{
+    color: var(--barva-success);
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.dobijeni-box{
+    padding: 22px;
+    border-radius: var(--radius-lg);
+    background: var(--barva-gradient-jemny);
+    border: 1px solid var(--barva-border-soft);
+}
+
+.dobijeni-tlacitka{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 14px;
+}
+
+.dobijeni-tlacitka .button{
+    padding: 10px 18px;
+    font-size: 14px;
+}
 .form-actions{
     margin-top: 14px;
     display: flex;
@@ -332,19 +576,23 @@ textarea:focus{
 .hero-text{
     padding: 24px 24px 26px 24px;
     border-radius: var(--radius-lg);
-    background: radial-gradient(circle at top left, rgba(248,250,252,0.55), transparent 60%),
-    linear-gradient(135deg, #1d2451, #020617);
-    color: #e5e7eb;
+    background: var(--barva-karta);
+    color: var(--barva-text);
     box-shadow: var(--stiny-stredni);
+    border: 1px solid var(--barva-border-soft);
 }
-
+html.dark .hero-text{
+    background: linear-gradient(135deg, #1d2451, #020617);
+    color: #e5e7eb;
+}
 .hero h1{
     margin: 0 0 10px 0;
-    font-size: 34px;
+    font-size: 42px;
 }
 .hero-subtitle{
     margin: 0 0 16px 0;
     opacity: 0.9;
+    font-size: 18px;
 }
 .hero-actions{
     display: flex;
@@ -358,20 +606,108 @@ textarea:focus{
     gap: 10px;
     justify-content: center;
 }
-
+.hero-title{
+    display:flex;
+    align-items: center;
+    gap:10px;
+}
+.hero-badge-button{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 18px;
+    border-radius: var(--radius-lg);
+    background: var(--barva-karta);
+    color: var(--barva-text);
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: var(--stiny-male);
+    transition:
+            transform var(--transition),
+            box-shadow var(--transition),
+            background var(--transition);
+}
+html.dark .hero-badge-button{
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    color: #e5e7eb;
+}
+.hero-badge-button:hover{
+    transform: translateY(-3px);
+    box-shadow: var(--stiny-stredni);
+    background: linear-gradient(135deg, var(--barva-hlavni), var(--barva-sekundarni));
+}
+.hero-badge-pocet{
+    background: rgba(79,70,229,0.12);
+    color: var(--barva-text);
+    padding: 4px 10px;
+    border-radius: var(--radius-pilulka);
+    font-size: 13px;
+}
+html.dark .hero-badge-pocet{
+    background: rgba(255,255,255,0.15);
+    color: #e5e7eb;
+}
 .badge{
-    background: rgba(15,23,42,0.88);
-    border: 1px solid rgba(148,163,184,0.6);
+    background: var(--barva-karta);
+    border: 1px solid var(--barva-okraju-jemna);
     padding: 10px 12px;
     border-radius: 12px;
     font-size: 13px;
-    color: #e5e7eb;
+    color: var(--barva-text);
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
+html.dark .badge{
+    background: rgba(15,23,42,0.88);
+    border: 1px solid rgba(148,163,184,0.6);
+    color: #e5e7eb;
+}
 .badge-pocet{
     font-weight: 700;
+}
+.kategorie-list {
+    display: none;
+    margin-top: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 0.5rem;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.kategorie-item {
+    padding: 0.4rem 0.6rem;
+    cursor: pointer;
+    border-radius: 6px;
+    margin-bottom: 0.3rem;
+}
+
+.kategorie-item:hover,
+.kategorie-odkaz:hover {
+    background: rgba(109,124,255,0.12);
+}
+.kategorie-item.aktivni {
+    background: #4f46e5;
+    color: white;
+}
+
+.vybrane-kategorie {
+    margin-top: 0.7rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.vybrana-kategorie {
+    background: #4f46e5;
+    color: white;
+    padding: 0.3rem 0.7rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+}
+.kategorie-wrapper {
+    margin-bottom: 1.5rem;
 }
 .aukce-kategorie{
     display: flex;
@@ -379,6 +715,7 @@ textarea:focus{
     gap: 6px;
     margin-bottom: 8px;
 }
+
 .badge-kategorie{
     font-size: 12px;
     padding: 4px 10px;
@@ -387,6 +724,18 @@ textarea:focus{
     color: #4F46e5;
     border: 1px solid rgba(79,70,229,0.35);
     font-weight: 500;
+}
+.badge-admin{
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #f97316, #ea580c);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
 }
 .filtr-kategorie{
     border-radius: 999px;
@@ -423,7 +772,8 @@ body.dark .badge-kategorie, html.dark .badge-kategorie{
 }
 
 .homepage-main{
-    min-width: 0;
+    display: flex;
+    flex-direction: column;
 }
 .homepage-main section{
     margin-bottom: 48px;
@@ -444,6 +794,12 @@ body.dark .badge-kategorie, html.dark .badge-kategorie{
 .homepage-welcome{
     text-align: center;
 }
+.dobijeni-box{
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: var(--radius);
+    background: var(--barva-gradient-jemny);
+}
 .aukce-hlavicka{
     display: flex;
     justify-content: space-between;
@@ -458,31 +814,45 @@ body.dark .badge-kategorie, html.dark .badge-kategorie{
     flex-wrap: wrap;
     margin: 16px 0 18px 0;
 }
-
+.aukce-foto{
+    width:120px;
+    height:120px;
+    object-fit:cover;
+    margin:5px;
+}
 .filtr-button{
     border-radius: var(--radius-pilulka);
     border: 1px solid var(--barva-okraju-jemna);
-    padding: 6px 14px;
-    font-size: 13px;
-    background: rgba(148,163,184,0.08);
+    padding: 8px 18px;
+    font-size: 14px;
+    background: var(--barva-karta);
     cursor: pointer;
     transition:
-            background var(--transition-fast),
-            border-color var(--transition-fast),
-            transform var(--transition-fast);
+            background var(--transition),
+            border-color var(--transition),
+            transform var(--transition),
+            box-shadow var(--transition);
     color: var(--barva-text);
+    font-weight: 500;
+    box-shadow: var(--stiny-male);
 }
+.filtr-button:hover{
+    transform: translateY(-2px);
+    box-shadow: var(--stiny-stredni);
+    border-color: var(--barva-hlavni);
+    color: #FFFFFF;
+}
+
 html.dark .filtr-button{
+    background: var(--barva-panelu-svetla);
     color: #e5e7eb;
-    background: rgba(148,163,184,0.18);
-    border-color: rgba(148,163,184,0.45);
 }
 .filtr-button.akce-aktivni{
-    background: rgba(79,70,229,0.12);
-    border-color: rgba(79,70,229,0.8);
-    transform: translateY(-1px);
-    color: var(--barva-hlavni);
+    background: linear-gradient(135deg, var(--barva-hlavni), var(--barva-sekundarni));
+    color: #ffffff;
+    border-color: transparent;
     font-weight: 600;
+    box-shadow: var(--stiny-stredni);
 }
 html.dark .filtr-button.akce-aktivni{
     background: rgba(79,70,229,0.35);
@@ -492,12 +862,12 @@ html.dark .filtr-button.akce-aktivni{
 .aukce-grid{
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 18px;
+    gap: 26px;
 }
 
 .aukce-title{
     margin: 0 0 6px 0;
-    font-size: 18px;
+    font-size: 20px;
 }
 .aukce-popis{
     margin: 0 0 12px 0;
@@ -516,6 +886,14 @@ html.dark .filtr-button.akce-aktivni{
 .aukce-price strong{
     font-weight: 600;
 }
+.aukce-nadois-blok{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:20px;
+    flex-wrap:wrap;
+    margin-bottom:20px;
+}
 .zbyvajici-cas{
     position: absolute;
     right: 18px;
@@ -527,10 +905,11 @@ html.dark .filtr-button.akce-aktivni{
     display: flex;
     flex-direction: column;
     gap: 6px;
-    background: linear-gradient(135deg, rgba(129,140,248,0.18), rgba(248,250,252,1));
+    background: var(--barva-gradient-jemny);
     border-radius: var(--radius-lg);
     border: 1px solid rgba(129,140,248,0.45);
     box-shadow: var(--stiny-stredni);
+    background: var(--barva-gradient-jemny);
 }
 
 .statistika h2{
@@ -538,10 +917,38 @@ html.dark .filtr-button.akce-aktivni{
 }
 .statistiky-layout{
     display: grid;
-    grid-template-columns: minmax(0, 2.1fr) minmax(260px, 0.9fr);
-    gap: 24px;
-    align-items: flex-start;
+    grid-template-columns: minmax(0,2.3fr) minmax(280px,1fr);
+    gap: 32px;
+    align-items: start;
 }
+.statistiky-hlavni{
+    display:grid;
+    grid-template-columns:minmax(0,2.3fr) minmax(280px,1fr);
+    gap:32px;
+    align-items:start;
+}
+.statistiky-dva-sloupce{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:28px;
+}
+.statistiky-dvojice{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    margin-bottom: 28px;
+}
+.statistiky-sidebar{
+    position:sticky;
+    top:120px;
+}
+
+.statistiky-sidebar .button{
+    display:block;
+    width:100%;
+    margin-bottom:12px;
+}
+
 .statistika-graf{
     display: flex;
     gap: 18px;
@@ -560,13 +967,19 @@ html.dark .filtr-button.akce-aktivni{
 
 .statistika-graf-pruh{
     width: 100%;
-    max-width: 70px;
-    border-radius: 999px;
-    background: linear-gradient(180deg, var(--barva-hlavni), var(--barva-sekundarni));
-    height: calc(var(--vyska-procenta, 0) * 1%);
+    max-width: 50px;
+    border-radius: 4px;
     transform-origin: bottom;
     transform: scaleY(0);
     animation: grafRoste 0.8s ease-out forwards;
+    background: var(--barva-gradient-silny);
+    box-shadow: 0 10px 30px rgba(79,70,229,0.25);
+}
+.statistika-graf-pruh.aktivni{
+    background-color: #22c55e;
+}
+.statistika-graf-pruh.ukoncene{
+    background-color: #ef4444;
 }
 .statistika-graf-sloupec:nth-child(1) .statistika-graf-pruh{
     animation-delay: 0.1s;
@@ -577,13 +990,20 @@ html.dark .filtr-button.akce-aktivni{
 .statistika-graf-sloupec:nth-child(3) .statistika-graf-pruh{
     animation-delay: 0.4s;
 }
+.skryta-sekce{
+    display: none;
+}
 .profil-layout{
     display: grid;
     grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
     gap: 22px;
     align-items: flex-start;
 }
-
+.profil-edit-grid {
+    display: grid;
+    gap: 15px;
+    margin-top: 15px;
+}
 .profil-sekce-hlavni h1{
     margin-top: 0;
 }
@@ -603,10 +1023,12 @@ html.dark .filtr-button.akce-aktivni{
 }
 .profil-popisek{
     color: var(--barva-text-treti);
+    font-size: 13px;
 }
 
 .profil-hodnota{
     font-weight: 600;
+    font-size: 15px;
 }
 
 .profil-statistika{
@@ -619,12 +1041,75 @@ html.dark .filtr-button.akce-aktivni{
 #dark-mode{
     margin-top: 10px;
 }
+.dark-toggle{
+    border:none;
+    background: transparent;
+    cursor:pointer;
+    font-size: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px;
+    border-radius: 999px;
+    transition: transform 0.15s ease, background-color 0.15s ease;
+}
+.dark-toggle:focus,
+.dark-toggle:focus-visible{
+    outline: none;
+    box-shadow: none;
+}
+.dark-toggle:hover{
+    background-color: rgba(148,163,184,0.25);
+    transform: translateY(-1px);
+}
+.dark-toggle .ikona-tma{
+    display:none;
+}
+.dark .dark-toggle .ikona-svetlo{
+    display:none;
+}
+.dark .dark-toggle .ikona-tma{
+    display: inline;
+}
 .notifikace-nova{
     background-color: #f1f5f9;
     border-radius: var(--radius-sm);
     padding: 8px 12px;
 }
+.notifikace-list{
+    margin-top:20px;
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+}
 
+.notifikace-polozka{
+    padding:18px;
+    border-radius:var(--radius-lg);
+    background:var(--barva-karta);
+    border:1px solid var(--barva-okraju-jemna);
+    box-shadow:var(--stiny-male);
+    transition:transform var(--transition), box-shadow var(--transition);
+}
+
+.notifikace-polozka:hover{
+    transform:translateY(-2px);
+    box-shadow:var(--stiny-stredni);
+}
+
+.notifikace-text{
+    margin:0 0 6px 0;
+}
+
+.notifikace-cas{
+    font-size:13px;
+    color:var(--barva-text-treti);
+}
+
+.notifikace-nova{
+    border-left:4px solid var(--barva-hlavni);
+    background:rgba(79,70,229,0.06);
+}
 .admin-tabulka{
     width: 100%;
     border-collapse: collapse;
@@ -656,7 +1141,301 @@ html.dark .filtr-button.akce-aktivni{
     color: var(--barva-error);
     font-weight: 600;
 }
+.admin-akce{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+}
+.admin-akce-smazat{
+    color: #dc2626;
+    font-size: 14px;
+    margin-left: 10px;
+}
+.admin-akce-smazat:hover{
+    text-decoration: underline;
+}
+.aukce-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 2rem;
+}
 
+.aukce-sidebar {
+    border-right: 1px solid rgba(148, 163, 184, 0.4);
+    padding-right: 1rem;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.aukce-sidebar-nadpis {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+.kategorie-vyber{
+    width: 100%;
+    border: 2px solid var(--barva-hlavni);
+    border-radius: 12px;
+    background: rgba(79,70,229,0.08);
+    padding: 12px 14px;
+    font-weight: 600;
+    color: var(--barva-text);
+    box-shadow: 0 0 0 3px rgba(79,70,229,0.08);
+}
+
+.kategorie-vyber:focus{
+    border-color: var(--barva-hlavni-hover);
+    box-shadow: 0 0 0 4px rgba(79,70,229,0.14);
+    background: rgba(79,70,229,0.12);
+}
+
+.input-soubor{
+    width: 100%;
+    padding: 10px;
+    border: 2px dashed rgba(79,70,229,0.45);
+    border-radius: 12px;
+    background: rgba(79,70,229,0.05);
+    color: var(--barva-text);
+    cursor: pointer;
+}
+
+.input-soubor:hover{
+    background: rgba(79,70,229,0.10);
+    border-color: var(--barva-hlavni);
+}
+
+
+.kategorie-dropdown{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    border:2px solid var(--barva-hlavni);
+    padding:12px 14px;
+    border-radius:10px;
+    cursor:pointer;
+    background:rgba(79,70,229,0.05);
+    font-weight:600;
+}
+
+.kategorie-dropdown:hover{
+    background:rgba(79,70,229,0.12);
+}
+
+.dropdown-arrow{
+    font-size:14px;
+}
+
+
+.kategorie-list{
+    display:none;
+    border:1px solid rgba(0,0,0,0.1);
+    border-radius:10px;
+    margin-top:6px;
+    max-height:220px;
+    overflow:auto;
+    background:white;
+}
+
+.kategorie-list.show{
+    display:block;
+}
+
+.kategorie-item{
+    padding:10px 14px;
+    cursor:pointer;
+}
+
+.kategorie-item:hover{
+    background:rgba(79,70,229,0.1);
+}
+
+.kategorie-item.aktivni{
+    background:var(--barva-hlavni);
+    color:white;
+}
+
+
+.vybrane-kategorie{
+    margin-top:10px;
+}
+
+.vybrana-kategorie{
+    display:inline-block;
+    background:var(--barva-hlavni);
+    color:white;
+    padding:5px 10px;
+    border-radius:999px;
+    margin:3px;
+    font-size:13px;
+}
+
+
+input[type=file]{
+    padding:10px;
+    border:2px dashed rgba(79,70,229,0.4);
+    border-radius:10px;
+    background:rgba(79,70,229,0.05);
+    width:100%;
+}
+
+input[type=file]::file-selector-button{
+    background:var(--barva-hlavni);
+    color:white;
+    border:none;
+    padding:8px 14px;
+    border-radius:20px;
+    cursor:pointer;
+    margin-right:10px;
+}
+
+input[type=file]::file-selector-button:hover{
+    opacity:0.9;
+}
+
+
+.form-error-message,
+.form-errors{
+    color:#ef4444;
+    font-weight:600;
+}
+.kategorie-seznam {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.kategorie-pismeno {
+    margin-top: 0.75rem;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    color: #6b7280;
+}
+
+.kategorie-polozka {
+    margin-left: 0.5rem;
+}
+
+.kategorie-odkaz {
+    display: block;
+    padding: 0.1rem 0.2rem;
+    font-size: 0.9rem;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 0.25rem;
+}
+
+.kategorie-odkaz:hover {
+    background: rgba(79, 70, 229, 0.06);
+}
+
+.kategorie-odkaz.aktivni {
+    font-weight: 600;
+    background: rgba(79, 70, 229, 0.12);
+}
+
+.detail-aukce-hlavni{
+    padding: 36px;
+}
+.detail-aukce-hlavni h1{
+    font-size: 32px;
+    margin-bottom: 18px;
+}
+.stav-aukce{
+    margin-top: 14px;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    background: var(--barva-surface-soft);
+    font-size: 14px;
+}
+.stav-aktivni{
+    border-left: 4px solid var(--barva-success);
+}
+.stav-ukoncena{
+    border-left: 4px solid var(--barva-error);
+}
+.sekce-aukce{
+    margin-top: 24px;
+    animation: fadeInUp 0.4s ease;
+}
+.aukce-thumbnail-wrapper {
+    width: 100%;
+    height: 150px;
+    margin-bottom: 8px;
+    overflow: hidden;
+    border-radius: 10px;
+    background: #f3f4f6;
+}
+
+.aukce-thumbnail-wrapper img.aukce-thumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.karta{
+    margin-bottom: 24px;
+}
+.admin-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    width: 100%;
+    max-width: 1400px;
+    margin: 40px auto;
+    padding: 0 24px;
+    box-sizing: border-box;
+}
+
+.admin-sidebar {
+    min-width: 0;
+}
+
+.admin-content {
+    min-width: 0;
+    overflow-x: auto;
+
+}
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-box {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    width: 320px;
+}
+
+.modal-actions {
+    margin-top: 15px;
+    display: flex;
+    justify-content: space-between;
+}
+.button-small {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    border-radius: 6px;
+}
+
+.btn-danger-small {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    border-radius: 6px;
+}
+.cena-aktualni {
+    margin: 15px 0;
+    padding: 12px;
+    background: var(--barva-gradient-jemny);
+    border-left: 4px solid var(--barva-hlavni);
+    border-radius: var(--radius-sm);
+}
 @keyframes fadeInUp{
     from{
         opacity: 0;
@@ -677,10 +1456,6 @@ html.dark .filtr-button.akce-aktivni{
     }
 }
 
-
-
-
-
 @media(max-width: 1024px){
     .hero{
         grid-template-columns: 1fr;
@@ -698,7 +1473,26 @@ html.dark .filtr-button.akce-aktivni{
         grid-template-columns: 1fr;
     }
 }
-
+@media(max-width: 900px){
+    .detail-layout{
+        grid-template-columns: 1fr;
+    }
+    .detail-pravy{
+        position: static;
+    }
+    .statistiky-layout{
+        grid-template-columns:1fr;
+    }
+    .statistiky-dva-sloupce{
+        grid-template-columns:1fr;
+    }
+    .statistiky-sidebar{
+        position:static;
+    }
+    .statistiky-dvojice{
+        grid-template-columns:1fr;
+    }
+}
 @media(max-width: 768px){
     header{
         padding: 12px 18px;
@@ -706,16 +1500,45 @@ html.dark .filtr-button.akce-aktivni{
         align-items: flex-start;
         gap: 8px;
     }
+    .aukce-grid{
+        grid-template-columns: 1fr;
+    }
+    .hero-text{
+        padding: 18px;
+    }
+    .nav-toggle{
+        display:block;
+    }
+
+    .navigace{
+        width: 100%;
+        justify-content: space-between;
+    }
+    .navigace-odkazy{
+        flex-wrap: wrap;
+        row-gap: 6px;
+        display:none;
+        flex-direction:column;
+        width:100%;
+        background:var(--barva-karta);
+        padding:15px;
+        border-radius:10px;
+        margin-top:10px;
+    }
+    .navigace-odkazy.open{
+        display:flex;
+    }
+
+    .prepni-rezim{
+        margin-left: auto;
+    }
     .obsah{
         padding: 0 14px;
     }
     .homepage-layout{
         grid-template-columns: 1fr;
     }
-    .aukce-grid{
+    .profil-dvojice{
         grid-template-columns: 1fr;
-    }
-    .hero-text{
-        padding: 18px;
     }
 }

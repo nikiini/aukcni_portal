@@ -9,6 +9,7 @@
 {% if error %}
 <p style="color: red;">Nesprávné přihlašovací údaje!</p>
 {% endif %}
+
 <form action="{{ path('app_login') }}" method="post">
     <label for="email">Email: </label>
     <input type="text" id="email" name="_username" value="{{ posledni_username }}">
@@ -16,11 +17,8 @@
     <label for="heslo">Heslo: </label>
     <input type="password" id="heslo" name="_password">
 
-    <button type="submit">Přihlásit se</button>
+    <button type="submit" class="button" style="margin-top: 12px;">Přihlásit se</button>
 </form>
-    <p>
-        Nemáte účet?
-        <a href="{{ path('app_registrace') }}">Registrujte se.</a>
-    </p>
-    </div>
+    <p style="margin-top: 10px;">Zapoměli jste heslo? <a href="{{ path('reset_hesla_zadost') }}">Obnovit heslo</a></p>
+    <p>Nemáte účet? <a href="{{ path('app_registrace') }}">Registrujte se.</a></p>
 {% endblock %}

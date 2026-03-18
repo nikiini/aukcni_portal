@@ -10,7 +10,7 @@ use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 class Kernel extends BaseKernel
 {
     use MicroKernelTrait;
-
+    //  Načte konfiguraci služeb a balíčků pro prostředí aplikace.
     protected function configureContainer(ContainerConfigurator $container): void
     {
         $container->import('../config/{packages}/*.yaml');
@@ -26,7 +26,7 @@ class Kernel extends BaseKernel
             }
         }
     }
-
+    //  Načte routy z konfiguračních souborů a anotací.
     protected function configureRoutes(RoutingConfigurator $routes): void
     {
         $routes->import('../config/{routes}/'.$this->environment.'/*.yaml');

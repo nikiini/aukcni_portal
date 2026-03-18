@@ -1,6 +1,8 @@
 {% extends 'base.html.twig' %}
-{%  block title %}Aukce{% endblock %}
+{% block title %}Aukce{% endblock %}
+
 {% block body %}
+
     {% set rezimStranky = rezimStranky|default('vse') %}
     {% set aktivniSekce = aktivniSekce|default('vse') %}
     {% set pocetAktivnich = pocetAktivnich|default(0) %}
@@ -8,114 +10,255 @@
     {% set aukceNoveDnes = aukceNoveDnes|default([]) %}
     {% set aukceKonciBrzy = aukceKonciBrzy|default([]) %}
     {% set kategorie = kategorie|default([]) %}
+
     <div class="karta">
+
+        <div class="aukce-layout">
+            {# ----- LEVÝ PANEL S KATEGORIEMI ----- #}
+            <aside class="aukce-sidebar">
+                <h2 class="aukce-sidebar-nadpis">Kategorie</h2>
+
+                {% if kategorie is not empty %}
+                    {% set aktualniPismeno = '' %}
+
+                    <ul class="kategorie-seznam">
+                        {% for kat in kategorie %}
+                            {% set prvni = kat.nazev|slice(0, 1)|upper %}
+
+                            {# když se změní první písmeno, vlož "nadpis" #}
+                            {% if prvni != aktualniPismeno %}
+                                {% set aktualniPismeno = prvni %}
+                                <li class="kategorie-pismeno">
+                                    {{ aktualniPismeno }}
+                                </li>
+                            {% endif %}
+
+                            <li class="kategorie-polozka">
+                                <a href="{{ path('aukce', { typ: kat.id }) }}"
+                                   class="kategorie-odkaz {{ app.request.get('typ') == kat.id ? 'aktivni' : '' }}">
+                                    {{ kat.nazev }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>Žádné kategorie nejsou k dispozici.</p>
+                {% endif %}
+            </aside>
+
+            {# ----- PRAVÝ HLAVNÍ OBSAH (to, co tam už máš) ----- #}
+            <div class="aukce-hlavni-obsah">
+
         <div class="aukce-hlavicka">
             {% if rezimStranky == 'moje' %}
-            <h1>Moje aukce</h1>
+                <h1>Moje aukce</h1>
             {% else %}
-            <h1>Všechny aukce</h1>
+                <h1>Všechny aukce</h1>
             {% endif %}
+
             {% if app.user and pocetAktivnich < 5 %}
-            <a href="{{ path('aukce_nova') }}" class="button">+ Vytvořit novou aukci</a>
+                <a href="{{ path('aukce_nova') }}" class="button">
+                    + Vytvořit novou aukci
+                </a>
             {% elseif app.user %}
-            <p class="info-text">
-                Máte maximální počet 5 aktivních aukcí.
-            </p>
+                <p class="info-text">
+                    Máte maximální počet 5 aktivních aukcí.
+                </p>
             {% endif %}
         </div>
-        {% if rezimStranky == 'vse' %}
-        <div class="aukce-filtry">
-            <button class="filtr-button akce-aktivni" data-sekce="vse">Všechny</button>
-            <button class="filtr-button" data-sekce="doporucene">Doporučené</button>
-            <button class="filtr-button" data-sekce="nove-dnes">Nově dnes</button>
-            <button class="filtr-button" data-sekce="konci-brzy">Brzy končí</button>
-            <button class="filtr-button {{ aktivniSekce == 'doporucene' ? 'akce-aktivni' : '' }}" data-sekce="doporucene"></button>
-        </div>
-        {% endif %}
 
-        {% if rezimStranky == 'vse' and kategorie is not empty %}
-        <div class="aukce-filtry">
-            <strong>Filtrovat podle kategorie: </strong>
-            <button class="filtr-kategorie aktivni" data-kategorie="vse">Vše</button>
-            {% for kat in kategorie %}
-            <button class="filtr-kategorie" data-kategorie="{{ kat.id }}">{{ kat.nazev }}</button>
-            {% endfor %}
-        </div>
-        {% endif %}
-
-        {% if aukce is empty %}
-        <div class="karta">
-            <p>Zatím zde nejsou žádné aukce.</p>
-        </div>
-            {% else %}
-                <section class="sekce-aukce" data-sekce="vse">
-                    <div class="aukce-grid">
-                        {% for jednaAukce in aukce %}
-                            <a href="{{ path('aukce_detail', {id: jednaAukce.id}) }}" class="karta karta-link" data-kategorie="{% for ak in jednaAukce.aukceKategorie %}{{ ak.kategorie.id }}{% if not loop.last %},{% endif %}{% endfor %}">
-                                {% if jednaAukce.aukceKategorie is not empty %}
-                                    <div class="aukce-kategorie">
-                                        {% for ak in jednaAukce.aukceKategorie %}
-                                                <span class="badge-kategorie">{{ ak.kategorie.nazev }}</span>
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
-                                <h3 class="aukce-title">{{ jednaAukce.nazev }}</h3>
-                                <p class="aukce-popis">{{ jednaAukce.popis }}</p>
-                                <p class="aukce-price"><strong>Vyvolávací cena: </strong>{{ jednaAukce.vychoziCena }} Kč</p>
-                            </a>
-                        {% endfor %}
-                    </div>
-                </section>
-
+                {# ---------- VYHLEDÁVÁNÍ ---------- #}
                 {% if rezimStranky == 'vse' %}
-                <section class="sekce-aukce" data-sekce="doporucene" style="display: none;">
-                    {% if aukceDoporucene is not empty %}
-                        <div class="aukce-grid">
-                            {% for jednaAukce in aukceDoporucene %}
-                                <a href="{{ path('aukce_detail', {id: jednaAukce.id}) }}" class="karta karta-link">
-                                    <h3 class="aukce-title">{{ jednaAukce.nazev }}</h3>
-                                    <p class="aukce-popis">{{ jednaAukce.popis }}</p>
-                                    <p class="aukce-price"><strong>Vyvolávací cena: </strong>{{ jednaAukce.vychoziCena }} Kč</p>
-                                </a>
-                            {% endfor %}
-                        </div>
-                        {% else %}
-                            <p>Momentálně zde nejsou žádné doporučené aukce.</p>
+                    <form method="get" action="{{ path('aukce') }}" class="aukce-hledani">
+                        <input type="text"
+                               name="q"
+                               value="{{ vyhledavani }}"
+                               placeholder="Hledat v názvu nebo popisu…">
+
+                        {# zachováme kategorii při hledání #}
+                        {% if app.request.get('typ') %}
+                            <input type="hidden" name="typ" value="{{ app.request.get('typ') }}">
                         {% endif %}
-                </section>
 
-                <section class="sekce-aukce" data-sekce="nove-dnes" style="display: none;">
-                    {% if aukceNoveDnes is not empty %}
-                        <div class="aukce-grid">
-                            {% for jednaAukce in aukceNoveDnes %}
-                                <a href="{{ path('aukce_detail', {id: jednaAukce.id}) }}" class="karta karta-link">
-                                    <h3 class="aukce-title">{{ jednaAukce.nazev }}</h3>
-                                    <p class="aukce-popis">{{ jednaAukce.popis }}</p>
-                                    <p class="aukce-price"><strong>Vyvolávací cena: </strong>{{ jednaAukce.vychoziCena }} Kč</p>
-                                </a>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        <p>Dnes zatím nebyly přidány žádné nové aukce.</p>
-                    {% endif %}
-                </section>
+                        {# zachováme sekci (vše / doporučené / …) #}
+                        {% if aktivniSekce != 'vse' %}
+                            <input type="hidden" name="sekce" value="{{ aktivniSekce }}">
+                        {% endif %}
 
-                <section class="sekce-aukce" data-sekce="konci-brzy" style="display: none;">
-                    {% if aukceKonciBrzy is not empty %}
-                        <div class="aukce-grid">
-                            {% for jednaAukce in aukceKonciBrzy %}
-                                <a href="{{ path('aukce_detail', {id: jednaAukce.id}) }}" class="karta karta-link">
-                                    <h3 class="aukce-title">{{ jednaAukce.nazev }}</h3>
-                                    <p class="aukce-popis">{{ jednaAukce.popis }}</p>
-                                    <p class="aukce-price"><strong>Vyvolávací cena: </strong>{{ jednaAukce.vychoziCena }} Kč</p>
-                                </a>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        <p>Žádné aukce nyní nekončí v nejbližší době.</p>
-                    {% endif %}
-                </section>
+                        <button type="submit" class="button-secondary">
+                            Hledat
+                        </button>
+                    </form>
                 {% endif %}
+
+        {% if vyhledavani %}
+            <p>Výsledky pro: <strong>{{ vyhledavani }}</strong></p>
         {% endif %}
-        </div>
+
+
+        {# ---------- FILTRY SEKCE ---------- #}
+                {% if rezimStranky == 'vse' %}
+                    <div class="aukce-filtry">
+
+                        <a href="{{ path('aukce', { sekce: 'vse', typ: app.request.get('typ') }) }}"
+                           class="filtr-button {{ aktivniSekce == 'vse' ? 'akce-aktivni' : '' }}">
+                            Všechny
+                        </a>
+
+                        <a href="{{ path('aukce', { sekce: 'doporucene', typ: app.request.get('typ') }) }}"
+                           class="filtr-button {{ aktivniSekce == 'doporucene' ? 'akce-aktivni' : '' }}">
+                            Doporučené
+                        </a>
+
+                        <a href="{{ path('aukce', { sekce: 'nove-dnes', typ: app.request.get('typ') }) }}"
+                           class="filtr-button {{ aktivniSekce == 'nove-dnes' ? 'akce-aktivni' : '' }}">
+                            Nově dnes
+                        </a>
+
+                        <a href="{{ path('aukce', { sekce: 'konci-brzy', typ: app.request.get('typ') }) }}"
+                           class="filtr-button {{ aktivniSekce == 'konci-brzy' ? 'akce-aktivni' : '' }}">
+                            Brzy končí
+                        </a>
+
+                        {% if app.user %}
+                            <a href="{{ path('aukce_moje') }}"
+                               class="filtr-button">
+                                Moje aukce
+                            </a>
+                        {% endif %}
+
+                    </div>
+                {% endif %}
+
+                {% if rezimStranky == 'moje' %}
+                    <div class="aukce-filtry">
+                        <a href="{{ path('aukce') }}" class="filtr-button">
+                            ← Zpět na všechny aukce
+                        </a>
+                    </div>
+                {% endif %}
+
+                {% if vybranaKategorie %}
+                    <div class="aukce-filtry" style="margin-top: 4px;">
+
+                        {% if rezimStranky == 'moje' %}
+                            <a href="{{ path('aukce_moje') }}"
+                               class="filtr-button button-secondary">
+                                ❌ Zrušit filtr: {{ vybranaKategorie.nazev }}
+                            </a>
+                        {% else %}
+                            <a href="{{ path('aukce', {
+                                sekce: aktivniSekce,
+                                q: vyhledavani
+                            }) }}"
+                               class="filtr-button button-secondary">
+                                ❌ Zrušit filtr: {{ vybranaKategorie.nazev }}
+                            </a>
+                        {% endif %}
+
+                    </div>
+                {% endif %}
+
+
+                {# ---------- VÝPIS AUKCÍ ---------- #}
+
+                {% if rezimStranky == 'moje' %}
+
+                    {# MOJE AUKCE – žádné sekce, prostě seznam #}
+                    {% if aukce is empty %}
+                        <div class="karta">
+                            <p>Nemáte žádné aukce.</p>
+                        </div>
+                    {% else %}
+                        <div class="aukce-grid">
+                            {% for jednaAukce in aukce %}
+                                <a href="{{ path('aukce_detail', {verejneId: jednaAukce.verejneId}) }}"
+                                   class="karta karta-link">
+
+                                    {% if jednaAukce.hlavniFoto %}
+                                        <div class="aukce-thumbnail-wrapper">
+                                            <img src="{{ asset('uploads/' ~ jednaAukce.hlavniFoto) }}"
+                                                 alt="{{ jednaAukce.nazev }}"
+                                                 class="aukce-thumbnail">
+                                        </div>
+                                    {% endif %}
+
+                                    {% if jednaAukce.aukceKategorie is not empty %}
+                                        <div class="aukce-kategorie">
+                                            {% for ak in jednaAukce.aukceKategorie %}
+                                                <span class="badge-kategorie">
+                        {{ ak.kategorie.nazev }}
+                    </span>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+
+                                    <h3 class="aukce-title">{{ jednaAukce.nazev }}</h3>
+                                    <p class="aukce-popis">{{ jednaAukce.popis }}</p>
+                                    <p class="aukce-price">
+                                        <strong>Vyvolávací cena:</strong>
+                                        {{ jednaAukce.vychoziCena }} Kč
+                                    </p>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                {% else %}
+
+                    {# REŽIM "VŠE" – sekce (vše / doporučené / nové / končí brzy) #}
+
+                    {% if aktivniSekce == 'vse' %}
+                        {% set seznam = aukce %}
+                    {% elseif aktivniSekce == 'doporucene' %}
+                        {% set seznam = aukceDoporucene %}
+                    {% elseif aktivniSekce == 'nove-dnes' %}
+                        {% set seznam = aukceNoveDnes %}
+                    {% elseif aktivniSekce == 'konci-brzy' %}
+                        {% set seznam = aukceKonciBrzy %}
+                    {% endif %}
+
+                    {% if seznam is empty %}
+                        <div class="karta">
+                            <p>Žádné aukce k zobrazení.</p>
+                        </div>
+                    {% else %}
+                        <div class="aukce-grid">
+                            {% for jednaAukce in seznam %}
+                                <a href="{{ path('aukce_detail', {verejneId: jednaAukce.verejneId}) }}"
+                                   class="karta karta-link">
+
+                                    {% if jednaAukce.hlavniFoto %}
+                                        <div class="aukce-thumbnail-wrapper">
+                                            <img src="{{ asset('uploads/' ~ jednaAukce.hlavniFoto) }}"
+                                                 alt="{{ jednaAukce.nazev }}"
+                                                 class="aukce-thumbnail">
+                                        </div>
+                                    {% endif %}
+
+                                    {% if jednaAukce.aukceKategorie is not empty %}
+                                        <div class="aukce-kategorie">
+                                            {% for ak in jednaAukce.aukceKategorie %}
+                                                <span class="badge-kategorie">
+                        {{ ak.kategorie.nazev }}
+                    </span>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+
+                                    <h3 class="aukce-title">{{ jednaAukce.nazev }}</h3>
+                                    <p class="aukce-popis">{{ jednaAukce.popis }}</p>
+                                    <p class="aukce-price">
+                                        <strong>Vyvolávací cena:</strong>
+                                        {{ jednaAukce.vychoziCena }} Kč
+                                    </p>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                {% endif %}
+
+    </div>
+
 {% endblock %}

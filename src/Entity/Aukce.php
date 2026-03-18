@@ -9,6 +9,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: AukceRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Aukce
 {
     #[ORM\Id]
@@ -68,27 +69,68 @@ class Aukce
     #[ORM\OneToMany(targetEntity: Komentare::class, mappedBy: 'aukce', orphanRemoval: true)]
     private Collection $komentare;
 
-    /**
-     * @var Collection<int, Platby>
-     */
-    #[ORM\OneToMany(targetEntity: Platby::class, mappedBy: 'aukce', orphanRemoval: true)]
-    private Collection $platby;
-
-    /**
-     * @var Collection<int, LogyAukce>
-     */
-    #[ORM\OneToMany(targetEntity: LogyAukce::class, mappedBy: 'aukce', orphanRemoval: true)]
-    private Collection $logyAukce;
-
-    /**
-     * @var Collection<int, BlokaceObsahu>
-     */
-    #[ORM\OneToMany(targetEntity: BlokaceObsahu::class, mappedBy: 'aukce', orphanRemoval: true)]
-    private Collection $blokaceObsahu;
-
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: true)]
     private ?Uzivatel $vitez = null;
+
+    #[ORM\Column]
+    private bool $skryta = false;
+
+    public function isSkryta(): bool{
+        return $this->skryta;
+    }
+    public function setSkryta(bool $skryta): static{
+        $this->skryta = $skryta;
+        return $this;
+    }
+    #[ORM\Column]
+    private bool $vyuctovana = false;
+
+    #[ORM\ManyToOne(targetEntity: Kategorie::class)]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Kategorie $typ = null;
+
+    #[ORM\Column(length: 32, unique: true)]
+    private ?string $verejneId = null;
+
+    #[ORM\PrePersist]
+    public function generujVerejneId(): void
+    {
+        if (!$this->verejneId) {
+            $this->verejneId = bin2hex(random_bytes(16));
+        }
+    }
+    public function getVerejneId(): ?string
+    {
+        return $this->verejneId;
+    }
+
+    public function setVerejneId(string $verejneId): static
+    {
+        $this->verejneId = $verejneId;
+        return $this;
+    }
+
+    public function getTyp(): ?Kategorie
+    {
+        return $this->typ;
+    }
+
+    public function setTyp(?Kategorie $typ): self
+    {
+        $this->typ = $typ;
+        return $this;
+    }
+    public function isVyuctovana(): bool
+    {
+        return $this->vyuctovana;
+    }
+
+    public function setVyuctovana(bool $vyuctovana): static
+    {
+        $this->vyuctovana = $vyuctovana;
+        return $this;
+    }
 
     public function getVitez(): ?Uzivatel{
         return $this->vitez;
@@ -104,9 +146,6 @@ class Aukce
         $this->sazky = new ArrayCollection();
         $this->aukceKategorie = new ArrayCollection();
         $this->komentare = new ArrayCollection();
-        $this->platby = new ArrayCollection();
-        $this->logyAukce = new ArrayCollection();
-        $this->blokaceObsahu = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -342,93 +381,4 @@ class Aukce
         return $this;
     }
 
-    /**
-     * @return Collection<int, Platby>
-     */
-    public function getPlatby(): Collection
-    {
-        return $this->platby;
-    }
-
-    public function addPlatby(Platby $platby): static
-    {
-        if (!$this->platby->contains($platby)) {
-            $this->platby->add($platby);
-            $platby->setAukce($this);
-        }
-
-        return $this;
-    }
-
-    public function removePlatby(Platby $platby): static
-    {
-        if ($this->platby->removeElement($platby)) {
-            // set the owning side to null (unless already changed)
-            if ($platby->getAukce() === $this) {
-                $platby->setAukce(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, LogyAukce>
-     */
-    public function getLogyAukce(): Collection
-    {
-        return $this->logyAukce;
-    }
-
-    public function addLogyAukce(LogyAukce $logyAukce): static
-    {
-        if (!$this->logyAukce->contains($logyAukce)) {
-            $this->logyAukce->add($logyAukce);
-            $logyAukce->setAukce($this);
-        }
-
-        return $this;
-    }
-
-    public function removeLogyAukce(LogyAukce $logyAukce): static
-    {
-        if ($this->logyAukce->removeElement($logyAukce)) {
-            // set the owning side to null (unless already changed)
-            if ($logyAukce->getAukce() === $this) {
-                $logyAukce->setAukce(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, BlokaceObsahu>
-     */
-    public function getBlokaceObsahu(): Collection
-    {
-        return $this->blokaceObsahu;
-    }
-
-    public function addBlokaceObsahu(BlokaceObsahu $blokaceObsahu): static
-    {
-        if (!$this->blokaceObsahu->contains($blokaceObsahu)) {
-            $this->blokaceObsahu->add($blokaceObsahu);
-            $blokaceObsahu->setAukce($this);
-        }
-
-        return $this;
-    }
-
-    public function removeBlokaceObsahu(BlokaceObsahu $blokaceObsahu): static
-    {
-        if ($this->blokaceObsahu->removeElement($blokaceObsahu)) {
-            // set the owning side to null (unless already changed)
-            if ($blokaceObsahu->getAukce() === $this) {
-                $blokaceObsahu->setAukce(null);
-            }
-        }
-
-        return $this;
-    }
 }

@@ -14,11 +14,11 @@ class Platby
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'platby')]
+    #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?Uzivatel $uzivatel = null;
 
-    #[ORM\ManyToOne(inversedBy: 'platby')]
+    #[ORM\ManyToOne]
     private ?Aukce $aukce = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]

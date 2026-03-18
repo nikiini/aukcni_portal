@@ -1,17 +1,155 @@
 {% extends 'base.html.twig' %}
 {% block title %}Nová aukce{% endblock %}
+
 {% block body %}
-<h1>Vytvořit aukci</h1>
-<div class="karta">
-     {{ form_start(formular) }}
-{{ form_row(formular.nazev) }}
-{{ form_row(formular.popis) }}
-{{ form_row(formular.vychozi_cena) }}
-{{ form_widget(formular) }}
-     <div class="form-actions">
-<button type="submit" class="button">Vytvořit aukci</button>
-          <a href="{{ path('aukce') }}" class="button button-secondary">Zrušit</a>
-     </div>
-{{ form_end(formular) }}
-</div>
+    <h1>Vytvořit aukci</h1>
+    <div class="karta aukce-formular">
+        {{ form_start(formular) }}
+        {{ form_row(formular.nazev) }}
+        {{ form_row(formular.popis) }}
+        <div class="kategorie-wrapper">
+            <label class="form-label">Kategorie (max 5)</label>
+            <div class="kategorie-dropdown" onclick="toggleKategorie()">
+                <span id="dropdown-text">Vybrat kategorie</span>
+                <span class="dropdown-arrow">▼</span>
+            </div>
+
+            <div id="kategorie-list" class="kategorie-list">
+                {% for choice in formular.kategorie.vars.choices %}
+                    <div class="kategorie-item"
+                         data-value="{{ choice.value }}">
+                        {{ choice.label }}
+                    </div>
+                {% endfor %}
+            </div>
+            {{ form_widget(formular.kategorie) }}
+            <div id="vybrane-kategorie" class="vybrane-kategorie"></div>
+        </div>
+        {{ form_row(formular.vychozi_cena) }}
+        {{ form_row(formular.delkaCasu) }}
+        <div class="form-group">
+            {{ form_label(formular.fotky) }}
+            {{ form_row(formular.fotky, {'attr': {'id': 'fotky-input'}}) }}
+        </div>
+
+        <div id="seznam-fotek"></div>
+        {{ form_rest(formular) }}
+        <div class="form-actions">
+            <button type="submit" class="button">Vytvořit aukci</button>
+            <a href="{{ path('aukce') }}" class="button button-secondary">Zrušit</a>
+        </div>
+        {{ form_end(formular) }}
+    </div>
+
+    <script>
+        function toggleKategorie(){
+            const list = document.getElementById('kategorie-list');
+            list.classList.toggle('show');
+        }
+        document.addEventListener('click', function(e){
+            if(!e.target.closest('.kategorie-wrapper')){
+                document.getElementById('kategorie-list').classList.remove('show');
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function(){
+            const items = document.querySelectorAll('.kategorie-item');
+            const select = document.querySelector('.kategorie-hidden-select');
+            const vystup = document.getElementById('vybrane-kategorie');
+
+            let vybraneHodnoty = [];
+            function aktualizujSelect(){
+                for(let option of select.options){
+                    option.selected = vybraneHodnoty.includes(option.value);
+                }
+            }
+            function vykresliStitky(){
+                vystup.innerHTML = '';
+                vybraneHodnoty.forEach(value => {
+                    const item = document.querySelector(`.kategorie-item[data-value="${value}"]`);
+                    const span = document.createElement('span');
+                    span.classList.add('vybrana-kategorie');
+                    span.textContent = item.textContent;
+                    vystup.appendChild(span);
+                });
+            }
+            items.forEach(item => {
+                item.addEventListener('click', function(){
+                    const value = this.dataset.value;
+                    if(vybraneHodnoty.includes(value)){
+                        vybraneHodnoty = vybraneHodnoty.filter(v => v !== value);
+                        this.classList.remove('aktivni');
+                    }else{
+                        if(vybraneHodnoty.length >= 5){
+                            alert('Maximálně 5 kategorií!');
+                            return;
+                        }
+                        vybraneHodnoty.push(value);
+                        this.classList.add('aktivni');
+                    }
+                    aktualizujSelect();
+                    vykresliStitky();
+                });
+            });
+        });
+        let vsechnyFotky = [];
+
+        const input = document.getElementById("fotky-input");
+        const seznam = document.getElementById("seznam-fotek");
+
+        input.addEventListener("change", function() {
+
+            for (let file of input.files) {
+
+                if (!file.type.startsWith("image/")) {
+                    alert("Povolené jsou pouze obrázky.");
+                    continue;
+                }
+
+                vsechnyFotky.push(file);
+            }
+
+            aktualizujInput();
+            vykresliSeznam();
+            input.value = "";
+        });
+
+        function aktualizujInput() {
+
+            const dt = new DataTransfer();
+
+            vsechnyFotky.forEach(file => dt.items.add(file));
+
+            input.files = dt.files;
+
+        }
+
+        function vykresliSeznam() {
+
+            seznam.innerHTML = "";
+
+            vsechnyFotky.forEach((file, index) => {
+
+                const div = document.createElement("div");
+
+                div.innerHTML = `
+            ${file.name}
+            <button type="button">❌</button>
+        `;
+
+                div.querySelector("button").onclick = () => {
+
+                    vsechnyFotky.splice(index,1);
+
+                    aktualizujInput();
+                    vykresliSeznam();
+
+                };
+
+                seznam.appendChild(div);
+
+            });
+
+        }
+    </script>
 {% endblock %}

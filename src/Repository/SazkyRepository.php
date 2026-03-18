@@ -11,6 +11,7 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class SazkyRepository extends ServiceEntityRepository
 {
+    //  Inicializuje závislosti potřebné pro fungování třídy.
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Sazky::class);
@@ -41,11 +42,12 @@ class SazkyRepository extends ServiceEntityRepository
     //        ;
     //    }
     public function soucetPrihozuUzivatele(int $uzivatelId): float{
-        return (float) $this->createQueryBuilder('s')
+       $vysledek = $this->createQueryBuilder('s')
             ->select('SUM(s.castka)')
             ->where('s.uzivatel = :uzivatel')
             ->setParameter('uzivatel', $uzivatelId)
             ->getQuery()
             ->getSingleScalarResult();
+       return(float)($vysledek ?? 0);
     }
 }

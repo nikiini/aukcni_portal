@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+{% block title %}
+Upravit aukci
+{% endblock %}
+{% block body %}
+    <div class="auth-page">
+        <section class="auth-card">
+        <h1>Upravit aukci</h1>
+        <div class="form-actions" style="margin-bottom: 18px;">
+            <a href="{{ path('aukce_detail', {verejneId: aukce.verejneId}) }}" class="button button-secondary">
+                ← Zpět na detail
+            </a>
+        </div>
+
+        {{ form_start(formular) }}
+            {{ form_row(formular.nazev) }}
+            {{ form_row(formular.popis) }}
+            {{ form_row(formular.vychozi_cena) }}
+            {{ form_row(formular.delkaCasu) }}
+            {{ form_row(formular.kategorie) }}
+            {{ form_row(formular.fotky) }}
+            <div class="form-actions">
+                <button type="submit" class="button">Uložit změny</button>
+            </div>
+        {{ form_end(formular) }}
+        </section>
+    </div>
+{% endblock %}

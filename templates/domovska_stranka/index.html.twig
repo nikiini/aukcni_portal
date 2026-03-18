@@ -5,7 +5,7 @@
 {% block body %}
     <section class="hero">
         <div class="hero-text">
-            <h1>Aukční portál</h1>
+            <h1 class="hero-title">Aukční portál</h1>
             <p class="hero-subtitle">Objev nové aukce, přihazuj a prodávej. Rychle a jednoduše.</p>
             <div class="hero-actions">
                 <a class="button" href="{{ path('aukce') }}">Procházet aukce</a>
@@ -18,9 +18,9 @@
         </div>
 
         <div class="hero-badges">
-            <a href="{{ path('aukce', {sekce: 'doporucene'}) }}" class="karta karta-link"><div class="badge">Doporučené<span class="badge-pocet">{{ aukce|length }}</span></div></a>
-            <a href="{{ path('aukce', {sekce: 'nove-dnes'}) }}" class="karta karta-link"><div class="badge">Nově dnes<span class="badge-pocet">{{ aukceNoveDnes|length }}</span></div></a>
-            <a href="{{ path('aukce', {sekce: 'konci-brzy'}) }}" class="karta karta-link"><div class="badge">Končí brzy<span class="badge-pocet">{{ aukceKonciBrzy|length }}</span></div></a>
+            <a href="{{ path('aukce', {sekce: 'doporucene'}) }}" class="hero-badge-button"><span>Doporučené</span><span class="hero-badge-pocet">{{ aukce|length }}</span></a>
+            <a href="{{ path('aukce', {sekce: 'nove-dnes'}) }}" class="hero-badge-button"><span>Nově dnes</span><span class="hero-badge-pocet">{{ aukceNoveDnes|length }}</span></a>
+            <a href="{{ path('aukce', {sekce: 'konci-brzy'}) }}" class="hero-badge-button"><span>Končí brzy</span><span class="hero-badge-pocet">{{ aukceKonciBrzy|length }}</span></a>
         </div>
     </section>
     <div class="homepage-layout">
@@ -47,14 +47,25 @@
 
         <main class="homepage-main">
             <section>
-                <h2 class="section-title">Nové aukce</h2>
+                <h2 class="section-title">Doporučené</h2>
                 {% if aukce is not empty %}
                     <div class="aukce-grid">
                         {% for jednaAukce in aukce %}
-                            <a href="{{ path('aukce_detail', {id:jednaAukce.id}) }}" class="karta karta-link">
+                            <a href="{{ path('aukce_detail', {verejneId: jednaAukce.verejneId}) }}" class="karta karta-link">
+
+                                {% if jednaAukce.hlavniFoto %}
+                                    <div class="aukce-thumbnail-wrapper">
+                                        <img src="{{ asset('uploads/' ~ jednaAukce.hlavniFoto) }}"
+                                             alt="{{ jednaAukce.nazev }}"
+                                             class="aukce-thumbnail">
+                                    </div>
+                                {% endif %}
+
                                 <h3 class="aukce-title">{{ jednaAukce.nazev }}</h3>
                                 <p class="aukce-popis">{{ jednaAukce.popis }}</p>
-                                <p class="aukce-price"><strong>Vyvolávací cena: </strong>{{ jednaAukce.vychoziCena }} Kč</p>
+                                <p class="aukce-price">
+                                    <strong>Vyvolávací cena: </strong>{{ jednaAukce.vychoziCena }} Kč
+                                </p>
                             </a>
                         {% endfor %}
                     </div>
@@ -70,11 +81,22 @@
             <h2 class="section-title">Nově dnes</h2>
             <div class="aukce-grid">
                 {% for jednaAukce in aukceNoveDnes %}
-                <a href="{{ path('aukce_detail', {id: jednaAukce.id}) }}" class="karta karta-link">
-                    <h3 class="aukce-title">{{ jednaAukce.nazev }}</h3>
-                    <p class="aukce-popis">{{ jednaAukce.popis }}</p>
-                    <p class="aukce-price"><strong>Vyvolávací cena: </strong>{{ jednaAukce.vychoziCena }} Kč</p>
-                </a>
+                    <a href="{{ path('aukce_detail', {verejneId: jednaAukce.verejneId}) }}" class="karta karta-link">
+
+                        {% if jednaAukce.hlavniFoto %}
+                            <div class="aukce-thumbnail-wrapper">
+                                <img src="{{ asset('uploads/' ~ jednaAukce.hlavniFoto) }}"
+                                     alt="{{ jednaAukce.nazev }}"
+                                     class="aukce-thumbnail">
+                            </div>
+                        {% endif %}
+
+                        <h3 class="aukce-title">{{ jednaAukce.nazev }}</h3>
+                        <p class="aukce-popis">{{ jednaAukce.popis }}</p>
+                        <p class="aukce-price">
+                            <strong>Vyvolávací cena: </strong>{{ jednaAukce.vychoziCena }} Kč
+                        </p>
+                    </a>
                 {% endfor %}
             </div>
         </section>
@@ -84,11 +106,22 @@
             <h2 class="section-title">Končí brzy</h2>
             <div class="aukce-grid">
                 {% for jednaAukce in aukceKonciBrzy %}
-                <a href="{{ path('aukce_detail', {id: jednaAukce.id}) }}" class="karta karta-link">
-                    <h3 class="aukce-title">{{ jednaAukce.nazev }}</h3>
-                    <p class="aukce-popis">{{ jednaAukce.popis }}</p>
-                    <p class="aukce-price"><strong>Vyvolávací cena: </strong>{{ jednaAukce.vychoziCena }} Kč</p>
-                </a>
+                    <a href="{{ path('aukce_detail', {verejneId: jednaAukce.verejneId}) }}" class="karta karta-link">
+
+                        {% if jednaAukce.hlavniFoto %}
+                            <div class="aukce-thumbnail-wrapper">
+                                <img src="{{ asset('uploads/' ~ jednaAukce.hlavniFoto) }}"
+                                     alt="{{ jednaAukce.nazev }}"
+                                     class="aukce-thumbnail">
+                            </div>
+                        {% endif %}
+
+                        <h3 class="aukce-title">{{ jednaAukce.nazev }}</h3>
+                        <p class="aukce-popis">{{ jednaAukce.popis }}</p>
+                        <p class="aukce-price">
+                            <strong>Vyvolávací cena: </strong>{{ jednaAukce.vychoziCena }} Kč
+                        </p>
+                    </a>
                 {% endfor %}
             </div>
         </section>

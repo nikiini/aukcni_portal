@@ -1,0 +1,16 @@
+{% extends 'email/layout.html.twig' %}
+{% block content %}
+    <p>Dobrý den {{ uzivatel.celeJmeno }},</p>
+    <p>
+        Děkujeme za registraci na aukčním portálu.
+    </p>
+    <p>
+        Pro aktivaci účtu klikněte na následující odkaz:
+    </p>
+    <p>
+        <a href="{{ url }}">Ověřit e-mail</a>
+    </p>
+    <p>
+        Pokud účet neověříte do 3 dnů, bude automaticky odstraněn.
+    </p>
+{% endblock %}

@@ -1,13 +1,15 @@
 <?php
 namespace App\Controller;
+use App\Repository\AukceRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Repository\AukceRepository;
+
 class DomovskaStrankaController extends AbstractController{
+    //  Načte data pro domovskou stránku a zobrazí hlavní přehled aukcí.
     #[Route('/', name: 'domovskaStranka')]
     public function index(AukceRepository $aukceRepository): Response{
-        $seznamNovychAukci = $aukceRepository->najdiNoveAukce(6);
+        $seznamNovychAukci = $aukceRepository->najdiDoporucene(6);
         $seznamAukciNoveDnes = $aukceRepository->najdiNoveAukceDnes(6);
         $seznamAukciKonciBrzy = $aukceRepository->najdiAukceKonciBrzy(6);
 

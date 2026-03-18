@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Přístup odepřen{% endblock %}
+
+{% block body %}
+
+    <div class="container mt-5 text-center">
+
+        <h1>403</h1>
+
+        <p>Nemáte oprávnění k přístupu na tuto stránku.</p>
+
+        <a href="{{ path('aukce') }}" class="btn btn-primary">
+            Zpět na hlavní stránku
+        </a>
+
+    </div>
+
+{% endblock %}

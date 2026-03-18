@@ -11,6 +11,7 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class AukceKategorieRepository extends ServiceEntityRepository
 {
+    //  Inicializuje závislosti potřebné pro fungování třídy.
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, AukceKategorie::class);

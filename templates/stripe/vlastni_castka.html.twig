@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+{% block title %}Dobít vlastní částku{% endblock %}
+{% block body %}
+<div class="karta">
+    <h1>Dobít vlastní částku</h1>
+    <form method="post" action="{{ path('stripe_vlastni_castka_submit') }}">
+        <label>Zadejte částku (Kč)</label>
+        <input type="number" name="castka" min="100" step="1" required>
+        <button type="submit">Pokračovat na platbu</button>
+        <a href="{{ path('profil') }}" class="button button-secondary">Zrušit</a>
+    </form>
+</div>
+{% endblock %}
