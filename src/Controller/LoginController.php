@@ -47,7 +47,7 @@ class LoginController extends AbstractController{
                                 [
                                     'jmeno' => $uzivatel->getCeleJmeno(),
                                     'email' => $uzivatel->getEmail(),
-                                    'domena' => 'wurknerova.dev.spsostrov.cz'
+                                    'domena' => 'wurknerova.dmp.dev.spsostrov.cz'
                                 ]
                             )
                         );
