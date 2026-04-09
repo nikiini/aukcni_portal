@@ -196,6 +196,59 @@ class AdminController extends AbstractController{
             throw $this->createAccessDeniedException('Neplatný CSRF token.');
         }
 
+        // smazání reportů
+        $reporty = $entityManager->getRepository(\App\Entity\ReportAukce::class)
+            ->findBy(['aukce' => $aukce]);
+
+        foreach ($reporty as $report) {
+            $entityManager->remove($report);
+        }
+
+        // smazání plateb
+        $platby = $entityManager->getRepository(\App\Entity\Platby::class)
+            ->findBy(['aukce' => $aukce]);
+
+        foreach ($platby as $platba) {
+            $entityManager->remove($platba);
+        }
+
+        // smazání sázek
+        $sazky = $entityManager->getRepository(\App\Entity\Sazky::class)
+            ->findBy(['aukce' => $aukce]);
+
+        foreach ($sazky as $sazka) {
+            $entityManager->remove($sazka);
+        }
+
+        // smazání komentářů
+        $komentare = $entityManager->getRepository(\App\Entity\Komentare::class)
+            ->findBy(['aukce' => $aukce]);
+
+        foreach ($komentare as $komentar) {
+            $entityManager->remove($komentar);
+        }
+
+        // smazání fotek (soubor + DB)
+        foreach ($aukce->getFotkyAukce() as $fotka) {
+            $cesta = $this->getParameter('kernel.project_dir') . '/public/uploads/' . $fotka->getCesta();
+
+            if (file_exists($cesta)) {
+                unlink($cesta);
+            }
+
+            $entityManager->remove($fotka);
+        }
+
+        // hlavní fotka
+        if ($aukce->getHlavniFoto()) {
+            $hlavni = $this->getParameter('kernel.project_dir') . '/public/uploads/' . $aukce->getHlavniFoto();
+
+            if (file_exists($hlavni)) {
+                unlink($hlavni);
+            }
+        }
+
+        // až nakonec aukce
         $entityManager->remove($aukce);
         $entityManager->flush();
 
