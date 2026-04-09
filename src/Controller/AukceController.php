@@ -7,6 +7,7 @@ use App\Entity\FotkyAukci;
 use App\Entity\Komentare;
 use App\Entity\Notifikace;
 use App\Entity\Sazky;
+use App\Entity\Platby;
 use App\Form\AukceType;
 use App\Repository\AukceRepository;
 use App\Repository\KategorieRepository;
@@ -117,9 +118,15 @@ class AukceController extends AbstractController
     {
         //  Zpracuje odeslaný formulář pro založení nové aukce přihlášeným uživatelem.
         $aukce = new Aukce();
-        $uzivatel = $this->getUser();
-        if (!$uzivatel) {
+        $uzivatelAuth = $this->getUser();
+        if (!$uzivatelAuth) {
             return $this->redirectToRoute('app_login');
+        }
+        $uzivatel = $entityManager->getRepository(\App\Entity\Uzivatel::class)
+            ->find($uzivatelAuth->getId());
+
+        if (!$uzivatel) {
+            throw $this->createAccessDeniedException('Uživatel nebyl nalezen.');
         }
         if ($uzivatel->isBlokovan()) {
             $this->addFlash('error', 'Váš účet je zablokován. Nelze vytvářet aukce.');
@@ -159,14 +166,14 @@ class AukceController extends AbstractController
                     'formular' => $formular->createView(),
                 ]);
             }
+            $aukce->setVerejneId(bin2hex(random_bytes(8)));
+            $entityManager->persist($aukce);
             foreach ($vybraneKategorie as $kategorie) {
                 $aukceKategorie = new AukceKategorie();
                 $aukceKategorie->setAukce($aukce);
                 $aukceKategorie->setKategorie($kategorie);
                 $entityManager->persist($aukceKategorie);
             }
-            $aukce->setVerejneId(bin2hex(random_bytes(8)));
-            $entityManager->persist($aukce);
             $fotky = $formular->get('fotky')->getData() ?? [];
 
             $hlavni = true;
@@ -180,7 +187,8 @@ class AukceController extends AbstractController
                     );
                     $fotka = new FotkyAukci();
                     $fotka->setAukce($aukce);
-                    $fotka->setNazevSouboru($novyNazev);
+                    $fotka->setCesta($novyNazev);
+                    $fotka->setVytvoreno(new \DateTime());
                     // první fotka = hlavní
                     if (!$aukce->getHlavniFoto()) {
                         $aukce->setHlavniFoto($novyNazev);
@@ -400,20 +408,16 @@ class AukceController extends AbstractController
             throw $this->createAccessDeniedException('Neplatný CSRF token.');
         }
         $uzivatelAuth = $this->getUser();
-        $uzivatel = $uzivatelRepository->find($uzivatelAuth->getId());
         if (!$uzivatelAuth) {
             return $this->redirectToRoute('app_login');
         }
+        $uzivatel = $uzivatelRepository->find($uzivatelAuth->getId());
         $ted = new \DateTime();
         if ($aukce->getStav() === 'ukoncena' || $aukce->getCasKonce() <= $ted) {
             $this->addFlash('error', 'Tato aukce je ukončena, komentáře již nelze přidávat.');
             return $this->redirectToRoute('aukce_detail', ['verejneId' => $aukce->getVerejneId()]);
         }
-        $uzivatelAuth = $this->getUser();
-        if (!$uzivatelAuth) {
-            $this->addFlash('error', 'Uživatel nebyl nalezen.');
-            return $this->redirectToRoute('aukce_detail', ['verejneId' => $aukce->getVerejneId()]);
-        }
+
         if ($uzivatelAuth->isBlokovan()) {
             $this->addFlash('error', 'Váš účet je zablokován.');
             return $this->redirectToRoute('aukce_detail', ['verejneId' => $aukce->getVerejneId()]); // nebo jinam
@@ -537,15 +541,28 @@ class AukceController extends AbstractController
             $this->addFlash('error', 'Aukce nebyla nalezena.');
             return $this->redirectToRoute('aukce_moje');
         }
-        if (!$aukce->getUzivatel() || $aukce->getUzivatel()->getId() !== $uzivatel->getId()) {
-            throw $this->createAccessDeniedException('Tuto aukci můžete upravit pouze vy.');
+        if (
+            !$aukce->getUzivatel() ||
+            ($aukce->getUzivatel()->getId() !== $uzivatel->getId() && !$this->isGranted('ROLE_ADMIN'))
+        ) {
+            throw $this->createAccessDeniedException('Tuto aukci můžete upravit pouze vy nebo admin.');
         }
+
         if ($aukce->getStav() !== 'aktivni' || $aukce->getCasKonce() <= new \DateTime()) {
             $this->addFlash('error', 'Ukončenou aukci již nelze upravovat.');
             return $this->redirectToRoute('aukce_detail', ['verejneId' => $aukce->getVerejneId()]);
         }
         $form = $this->createForm(AukceType::class, $aukce);
+
+        // předvyplnění kategorií
+        $vybraneKategorie = [];
+        foreach ($aukce->getAukceKategorie() as $ak) {
+            $vybraneKategorie[] = $ak->getKategorie();
+        }
+
+        $form->get('kategorie')->setData($vybraneKategorie);
         $form->handleRequest($request);
+
 
         if ($form->isSubmitted() && $form->isValid()) {
             $fotky = $form->get('fotky')->getData() ?? [];
@@ -561,7 +578,9 @@ class AukceController extends AbstractController
                         $this->getParameter('kernel.project_dir').'/public/uploads',
                         $novyNazev
                     );
-
+                    if (!$aukce->getHlavniFoto()) {
+                        $aukce->setHlavniFoto($novyNazev);
+                    }
                     $fotka = new FotkyAukci();
                     $fotka->setAukce($aukce);
                     $fotka->setCesta($novyNazev);
@@ -571,9 +590,21 @@ class AukceController extends AbstractController
                 }
 
             }
+
             // pokud ještě nikdo nepřihazoval, musí se aktualizovat aktuální cena
             if ($aukce->getSazky()->count() === 0) {
                 $aukce->setAktualniCena($aukce->getVychoziCena());
+            }
+            $vybraneKategorie = $form->get('kategorie')->getData() ?? [];
+            foreach ($aukce->getAukceKategorie() as $staraVazba) {
+                $entityManager->remove($staraVazba);
+            }
+
+            foreach ($form->get('kategorie')->getData() as $kategorie) {
+                $novaVazba = new AukceKategorie();
+                $novaVazba->setAukce($aukce);
+                $novaVazba->setKategorie($kategorie);
+                $entityManager->persist($novaVazba);
             }
             $entityManager->flush();
 
@@ -667,9 +698,150 @@ class AukceController extends AbstractController
         }
 
         $aukce->setStav('aktivni');
+        // smazání starých notifikací o výhře
+        $notifikaceRepo = $entityManager->getRepository(\App\Entity\Notifikace::class);
+
+        $notifikace = $notifikaceRepo->findBy([
+            'typ' => 'vyhra',
+        ]);
+
+        foreach ($notifikace as $n) {
+            if (str_contains($n->getText(), $aukce->getNazev())) {
+                $entityManager->remove($n);
+            }
+        }
         $entityManager->flush();
 
         $this->addFlash('success', 'Aukce byla znovu spuštěna.');
         return $this->redirectToRoute('aukce_detail', ['verejneId' => $aukce->getVerejneId()]);
+    }
+    #[Route('/aukce/{verejneId}/smazat', name: 'aukce_smazat', methods: ['POST'])]
+    public function smazatAukci(string $verejneId, Request $request, AukceRepository $aukceRepository, ReportAukceRepository $reportAukceRepository, SazkyRepository $sazkyRepository, KomentareRepository $komentareRepository, EntityManagerInterface $entityManager): Response
+    {
+        $aukce = $aukceRepository->findOneBy(['verejneId' => $verejneId]);
+
+        if (!$aukce) {
+            throw $this->createNotFoundException('Aukce nebyla nalezena.');
+        }
+
+        $uzivatel = $this->getUser();
+
+        if (!$uzivatel) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        // CSRF ochrana
+        if (!$this->isCsrfTokenValid(
+            'smazat_' . $verejneId,
+            $request->request->get('_token')
+        )) {
+            throw $this->createAccessDeniedException('Neplatný CSRF token.');
+        }
+
+        // oprávnění
+        if ($aukce->getUzivatel()->getId() !== $uzivatel->getId() && !$this->isGranted('ROLE_ADMIN')) {
+            throw $this->createAccessDeniedException();
+        }
+
+        // smazání reportů
+        $reporty = $reportAukceRepository->findBy(['aukce' => $aukce]);
+        foreach ($reporty as $report) {
+            $entityManager->remove($report);
+        }
+
+        //smazání sázek
+        $sazky = $sazkyRepository->findBy(['aukce' => $aukce]);
+        foreach ($sazky as $sazka) {
+            $entityManager->remove($sazka);
+        }
+
+        // smazání komentářů
+        $komentare = $komentareRepository->findBy(['aukce' => $aukce]);
+        foreach ($komentare as $komentar) {
+            $entityManager->remove($komentar);
+        }
+
+        // smazání plateb
+        $platby = $entityManager->getRepository(\App\Entity\Platby::class)->findBy(['aukce' => $aukce]);
+        foreach ($platby as $platba) {
+            $entityManager->remove($platba);
+        }
+
+        // smazání všech fotek
+        $fotky = $entityManager->getRepository(\App\Entity\FotkyAukci::class)->findBy(['aukce' => $aukce]);
+        foreach ($fotky as $fotka) {
+            $cesta = $this->getParameter('kernel.project_dir') . '/public/uploads/' . $fotka->getCesta();
+
+            if (file_exists($cesta)) {
+                unlink($cesta);
+            }
+
+            $entityManager->remove($fotka);
+        }
+
+        // smazání hlavní fotky
+        if ($aukce->getHlavniFoto()) {
+            $hlavni = $this->getParameter('kernel.project_dir') . '/public/uploads/' . $aukce->getHlavniFoto();
+
+            if (file_exists($hlavni)) {
+                unlink($hlavni);
+            }
+        }
+
+        // smazání aukce
+        $entityManager->remove($aukce);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Aukce byla smazána.');
+
+        return $this->redirectToRoute('aukce_moje');
+    }
+    #[Route('/aukce/fotka/{id}/smazat', name: 'smazat_fotku_aukce', methods: ['POST'])]
+    public function smazatFotkuAukce(int $id, Request $request, EntityManagerInterface $entityManager): Response {
+        $uzivatel = $this->getUser();
+
+        if (!$uzivatel) {
+            return $this->redirectToRoute('app_login');
+        }
+        if (!$this->isCsrfTokenValid('smazat_fotku_'.$id, $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException('Neplatný CSRF token.');
+        }
+        $fotka = $entityManager->getRepository(FotkyAukci::class)->find($id);
+
+        if (!$fotka) {
+            throw $this->createNotFoundException('Fotka nebyla nalezena.');
+        }
+
+        $aukce = $fotka->getAukce();
+
+        // kontrola oprávnění
+        if (
+            $aukce->getUzivatel()->getId() !== $uzivatel->getId()
+            && !$this->isGranted('ROLE_ADMIN')
+        ) {
+            throw $this->createAccessDeniedException();
+        }
+
+        // smazání souboru
+        $cesta = $this->getParameter('kernel.project_dir') . '/public/uploads/' . $fotka->getCesta();
+
+        if (file_exists($cesta)) {
+            unlink($cesta);
+        }
+
+        // pokud byla hlavní fotka → zrušit ji
+        if ($aukce->getHlavniFoto() === $fotka->getCesta()) {
+            $aukce->setHlavniFoto(null);
+        }
+
+        // smazání z DB
+        $entityManager->remove($fotka);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Fotka byla smazána.');
+
+        return $this->redirectToRoute('aukce_upravit', [
+            'verejneId' => $aukce->getVerejneId()
+        ]);
     }
 }

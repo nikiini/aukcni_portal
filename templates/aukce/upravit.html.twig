@@ -1,28 +1,131 @@
 {% extends 'base.html.twig' %}
-{% block title %}
-Upravit aukci
-{% endblock %}
+
+{% block title %}Upravit aukci{% endblock %}
+
 {% block body %}
-    <div class="auth-page">
-        <section class="auth-card">
+    <div class="karta aukce-formular">
+
         <h1>Upravit aukci</h1>
-        <div class="form-actions" style="margin-bottom: 18px;">
-            <a href="{{ path('aukce_detail', {verejneId: aukce.verejneId}) }}" class="button button-secondary">
-                ← Zpět na detail
-            </a>
-        </div>
+
+        {% if aukce.fotkyAukce is not empty %}
+            <div style="margin-bottom: 20px;">
+                <h3>Aktuální fotografie</h3>
+
+                <div style="display:flex; gap:15px; flex-wrap:wrap;">
+                    {% for foto in aukce.fotkyAukce %}
+                        <div style="text-align:center;">
+                            <img src="{{ asset('uploads/' ~ foto.cesta) }}" width="120" style="margin-bottom: 8px; border-radius:6px;">
+
+                            <form method="post" action="{{ path('smazat_fotku_aukce', {id: foto.id}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('smazat_fotku_' ~ foto.id) }}">
+                                <button type="submit" class="akce-smazat">
+                                    Smazat
+                                </button>
+                            </form>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
 
         {{ form_start(formular) }}
-            {{ form_row(formular.nazev) }}
-            {{ form_row(formular.popis) }}
-            {{ form_row(formular.vychozi_cena) }}
-            {{ form_row(formular.delkaCasu) }}
-            {{ form_row(formular.kategorie) }}
-            {{ form_row(formular.fotky) }}
-            <div class="form-actions">
-                <button type="submit" class="button">Uložit změny</button>
+
+        {{ form_row(formular.nazev) }}
+        {{ form_row(formular.popis) }}
+
+        {# 🔥 NOVÉ KATEGORIE (z nova.html.twig) #}
+        <div class="kategorie-wrapper">
+            <label class="form-label">Kategorie (max 5)</label>
+            <div class="kategorie-dropdown" onclick="toggleKategorie()">
+                <span id="dropdown-text">Vybrat kategorie</span>
+                <span class="dropdown-arrow">▼</span>
             </div>
+
+            <div id="kategorie-list" class="kategorie-list">
+                {% for choice in formular.kategorie.vars.choices %}
+                    <div class="kategorie-item"
+                         data-value="{{ choice.value }}">
+                        {{ choice.label }}
+                    </div>
+                {% endfor %}
+            </div>
+
+            {{ form_widget(formular.kategorie) }}
+            <div id="vybrane-kategorie" class="vybrane-kategorie"></div>
+        </div>
+
+        {{ form_row(formular.vychozi_cena) }}
+        {{ form_row(formular.delkaCasu) }}
+        <div style="margin-bottom: 20px;">
+            {{ form_row(formular.fotky) }}
+        </div>
+
+        <button type="submit">Uložit změny</button>
+
         {{ form_end(formular) }}
-        </section>
+
     </div>
+
+    <script>
+        function toggleKategorie(){
+            document.getElementById('kategorie-list').classList.toggle('show');
+        }
+
+        document.addEventListener('DOMContentLoaded', function(){
+            const items = document.querySelectorAll('.kategorie-item');
+            const select = document.querySelector('.kategorie-hidden-select');
+            const vystup = document.getElementById('vybrane-kategorie');
+
+            let vybrane = [];
+
+            for(let option of select.options){
+                if(option.selected){
+                    vybrane.push(option.value);
+                }
+            }
+
+            function sync(){
+                for(let option of select.options){
+                    option.selected = vybrane.includes(option.value);
+                }
+
+                vystup.innerHTML = '';
+
+                items.forEach(i => i.classList.remove('aktivni'));
+
+                vybrane.forEach(val => {
+                    const el = document.querySelector(`[data-value="${val}"]`);
+                    if(el){
+                        el.classList.add('aktivni');
+
+                        const span = document.createElement('span');
+                        span.textContent = el.textContent.trim();
+                        span.classList.add('vybrana-kategorie');
+                        vystup.appendChild(span);
+                    }
+                });
+            }
+
+            items.forEach(item => {
+                item.addEventListener('click', () => {
+                    const val = item.dataset.value;
+
+                    if(vybrane.includes(val)){
+                        vybrane = vybrane.filter(v => v !== val);
+                    } else {
+                        if(vybrane.length >= 5){
+                            alert('Max 5 kategorií');
+                            return;
+                        }
+                        vybrane.push(val);
+                    }
+
+                    sync();
+                });
+            });
+
+            sync();
+        });
+    </script>
+
 {% endblock %}

@@ -122,19 +122,52 @@ class AdminController extends AbstractController{
         }
 
         $form = $this->createForm(\App\Form\AukceType::class, $aukce);
+
+        $vybraneKategorie = [];
+
+        foreach ($aukce->getAukceKategorie() as $ak) {
+            $vybraneKategorie[] = $ak->getKategorie();
+        }
+
+        $form->get('kategorie')->setData($vybraneKategorie);
+
         $form->handleRequest($request);
 
         if($form->isSubmitted() && $form->isValid()) {
-            $foto = $form->get('fotky')->getData();
-            if ($foto) {
-                $novyNazev = uniqid() . '.' . $foto->guessExtension();
+            $fotky = $form->get('fotky')->getData() ?? [];
 
-                $foto->move(
-                    $this->getParameter('kernel.project_dir') . '/public/uploads',
-                    $novyNazev
-                );
+            foreach ($fotky as $foto) {
+                if ($foto) {
+                    $novyNazev = uniqid() . '.' . ($foto->guessExtension() ?: 'jpg');
 
-                $aukce->setHlavniFoto($novyNazev);
+                    $foto->move(
+                        $this->getParameter('kernel.project_dir') . '/public/uploads',
+                        $novyNazev
+                    );
+
+                    $fotka = new \App\Entity\FotkyAukci();
+                    $fotka->setAukce($aukce);
+                    $fotka->setCesta($novyNazev);
+                    $fotka->setVytvoreno(new \DateTime());
+
+                    if (!$aukce->getHlavniFoto()) {
+                        $aukce->setHlavniFoto($novyNazev);
+                    }
+
+                    $entityManager->persist($fotka);
+                }
+            }
+            $vybraneKategorie = $form->get('kategorie')->getData() ?? [];
+
+            foreach ($aukce->getAukceKategorie() as $staraVazba) {
+                $entityManager->remove($staraVazba);
+            }
+
+            foreach ($vybraneKategorie as $kategorie) {
+                $ak = new \App\Entity\AukceKategorie();
+                $ak->setAukce($aukce);
+                $ak->setKategorie($kategorie);
+                $entityManager->persist($ak);
             }
             $pocetSazek = count($aukce->getSazky());
             if ($pocetSazek === 0) {
@@ -237,7 +270,28 @@ class AdminController extends AbstractController{
         $formular->handleRequest($request);
 
         if ($formular->isSubmitted() && $formular->isValid()) {
+            $foto = $formular->get('profilFoto')->getData();
+
+            if ($foto) {
+                if ($uzivatel->getProfilFoto()) {
+                    $staraCesta = $this->getParameter('kernel.project_dir') . '/public/uploads/profily/' . $uzivatel->getProfilFoto();
+
+                    if (file_exists($staraCesta)) {
+                        unlink($staraCesta);
+                    }
+                }
+
+                $novyNazev = uniqid() . '.' . ($foto->guessExtension() ?: 'jpg');
+
+                $foto->move(
+                    $this->getParameter('kernel.project_dir') . '/public/uploads/profily',
+                    $novyNazev
+                );
+
+                $uzivatel->setProfilFoto($novyNazev);
+            }
             $entityManager->flush();
+
             $this->addFlash('success', 'Profil uživatele byl upraven.');
             return $this->redirectToRoute('admin_uzivatele', ['u' => $verejneId]);
         }
@@ -263,10 +317,53 @@ class AdminController extends AbstractController{
     public function spustitAukci(Aukce $aukce, EntityManagerInterface $em): Response
     {
         $aukce->setStav('aktivni');
+
+        //smazání notifikací o výhře
+        $repo = $em->getRepository(Notifikace::class);
+
+        $notifikace = $repo->findBy([
+            'typ' => 'vyhra'
+        ]);
+        foreach ($notifikace as $n) {
+            if (str_contains($n->getText(), $aukce->getNazev())) {
+                $em->remove($n);
+            }
+        }
         $em->flush();
 
         $this->addFlash('success', 'Aukce byla spuštěna.');
 
         return $this->redirectToRoute('admin_panel');
+    }
+    #[Route('/uzivatel/{verejneId}/smazat-foto', name: 'admin_uzivatel_smazat_foto', methods: ['POST'])]
+    public function smazatFotoUzivatele(string $verejneId, Request $request, UzivatelRepository $repo, EntityManagerInterface $em): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $uzivatel = $repo->findOneBy(['verejneId' => $verejneId]);
+
+        if (!$uzivatel) {
+            $this->addFlash('error', 'Uživatel nebyl nalezen.');
+            return $this->redirectToRoute('admin_uzivatele');
+        }
+
+        if (!$this->isCsrfTokenValid('smazat_foto_admin_' . $uzivatel->getId(), $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException('Neplatný CSRF token.');
+        }
+
+        if ($uzivatel->getProfilFoto()) {
+            $cesta = $this->getParameter('kernel.project_dir') . '/public/uploads/profily/' . $uzivatel->getProfilFoto();
+
+            if (file_exists($cesta)) {
+                unlink($cesta);
+            }
+
+            $uzivatel->setProfilFoto(null);
+            $em->flush();
+        }
+
+        $this->addFlash('success', 'Profilová fotka byla smazána.');
+
+        return $this->redirectToRoute('admin_uzivatele', ['u' => $verejneId]);
     }
 }

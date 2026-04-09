@@ -10,7 +10,7 @@
                     <a href="{{ path('aukce') }}" class="button button-secondary">
                         ← Zpět na aukce
                     </a>
-                    {% if app.user and aukce.uzivatel and app.user.id == aukce.uzivatel.id and aukce.stav == 'aktivni' and aukce.casKonce > date() %}
+                    {% if app.user and aukce.uzivatel and (app.user.id == aukce.uzivatel.id or is_granted('ROLE_ADMIN')) and aukce.stav == 'aktivni' and aukce.casKonce > date() %}
                         <a href="{{ path('aukce_upravit', {verejneId: aukce.verejneId}) }}" class="button">
                             Upravit aukci
                         </a>
@@ -63,23 +63,18 @@
                                 </button>
                             </form>
                         {% endif %}
-                    {% endif %}
-                    {% if app.user and aukce.stav == 'ukoncena' and aukce.vitez %}
-                        {% if reportExistuje %}
-                            <p style="color:#ef4444;font-weight:600;">
-                                Aukci jste již nahlásil(a).
-                            </p>
-                        {% elseif (app.user.id == aukce.uzivatel.id or app.user.id == aukce.vitez.id) and not is_granted('ROLE_ADMIN') %}
-                            <a href="{{ path('aukce_report', {verejneId: aukce.verejneId}) }}"
-                               class="button button-secondary">
-                                Nahlásit problém
-                            </a>
-                        {% endif %}
+                        <form method="post" action="{{ path('aukce_smazat', {'verejneId': aukce.verejneId}) }}">
+                            <input type="hidden" name="_token" value="{{ csrf_token('smazat_' ~ aukce.verejneId) }}">
 
+                            <button type="submit" class="button button-secondary">
+                                Smazat aukci
+                            </button>
+                        </form>
                     {% endif %}
+
                 </div>
                 {% for foto in aukce.fotkyAukce %}
-                    <img src="{{ asset('uploads/' ~ foto.nazevSouboru) }}" class="aukce-foto">
+                    <img src="{{ asset('uploads/' ~ foto.cesta) }}" class="thumb" style="max-width: 150px; cursor: zoom-in;" onclick="zobrazObrazek(this.src)">
                 {% endfor %}
                 {% set nejvyssiSazka = sazky|length > 0 ? sazky[0] : null %}
                 {% if nejvyssiSazka %}
@@ -95,7 +90,7 @@
                                 <p class="text-success">Gratulujeme! Tuto aukci jste vyhrál(a).</p>
                             {% endif %}
                         {% else %}
-                            <p>🔥 Aktuálně vede:
+                            <p>Aktuálně vede:
                                 <strong>{{ nejvyssiSazka.uzivatel.uzivatelskeJmeno }}</strong>
                                 s částkou <strong>{{ nejvyssiSazka.castka }} Kč</strong>.
                             </p>
@@ -212,7 +207,7 @@
                             {% if is_granted('ROLE_ADMIN') %}
                                 <form method="post" action="{{ path('admin_komentar_smazat',{verejneId: komentar.verejneId}) }}" onsubmit="return confirm('Opravdu smazat komentář?');" style="display:inline">
                                     <input type="hidden" name="_token" value="{{ csrf_token('smaz_komentar_' ~ komentar.verejneId) }}">
-                                    <button class="admin-akce-smazat button-secondary">
+                                    <button class="akce-smazat button-secondary">
                                         Smazat komentář
                                     </button>
                                 </form>
@@ -313,7 +308,22 @@
         </aside>
 
     </div>
+    <div id="modal" class="fotka-zoom">
+        <img id="modalImg" style="display:block; margin:auto; max-width:90%; max-height:90%; margin-top:5%;">
+    </div>
+
     <script>
+        function zobrazObrazek(src) {
+            const modal = document.getElementById('modal');
+            const img = document.getElementById('modalImg');
+
+            img.src = src;
+            modal.classList.add('aktivni');
+        }
+
+        document.getElementById('modal').onclick = function() {
+            this.classList.remove('aktivni');
+        };
         document.addEventListener("DOMContentLoaded", function () {
             const textarea = document.getElementById("text_komentare");
             const pocitadlo = document.getElementById("pocitadlo-znaku");

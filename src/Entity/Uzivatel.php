@@ -18,7 +18,7 @@ class Uzivatel implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 180)]
+    #[ORM\Column(length: 180, unique: true)]
     private ?string $uzivatelske_jmeno = null;
 
     #[ORM\Column(length: 255)]

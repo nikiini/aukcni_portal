@@ -6,8 +6,26 @@
         <h1>Upravit uživatele</h1>
         <p><strong>{{ uzivatel.celeJmeno }}</strong> ({{ uzivatel.email }})</p>
 
-        {{ form_start(formular) }}
-        {{ form_widget(formular) }}
+        {% if uzivatel.profilFoto %}
+            <div style="margin-bottom: 20px;">
+                <img src="{{ asset('uploads/profily/' ~ uzivatel.profilFoto) }}"
+                     alt="Profilová fotografie"
+                     style="max-width: 160px; border-radius: 12px;">
+            </div>
+                <form method="post" action="{{ path('admin_uzivatel_smazat_foto', {verejneId: uzivatel.verejneId}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('smazat_foto_admin_' ~ uzivatel.id) }}">
+                    <button type="submit" class="button button-danger">
+                        Smazat profilovou fotku
+                    </button>
+                </form>
+        {% endif %}
+
+        {{ form_start(formular, {'attr': {'enctype': 'multipart/form-data'}}) }}
+        {{ form_row(formular.cele_jmeno) }}
+        {{ form_row(formular.uzivatelske_jmeno) }}
+        {{ form_row(formular.email) }}
+        {{ form_row(formular.profilFoto) }}
+
         <div class="form-actions">
             <button type="submit" class="button">Uložit změny</button>
             <a href="{{ path('admin_uzivatele', {u: uzivatel.verejneId}) }}" class="button button-secondary">

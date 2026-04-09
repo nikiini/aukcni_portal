@@ -5,6 +5,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
+use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 
 class EmailNeboUsernameProvider implements UserProviderInterface{
     //  Přijme repozitář uživatelů pro načítání identity.
@@ -31,12 +32,26 @@ class EmailNeboUsernameProvider implements UserProviderInterface{
         return $uzivatel;
     }
     //  Obnoví instanci uživatele po přihlášení.
-    public function refreshUser(UserInterface $uzivatel): UserInterface{
-        return $uzivatel;
+    public function refreshUser(UserInterface $uzivatel): UserInterface
+    {
+        if (!$uzivatel instanceof Uzivatel) {
+            throw new UnsupportedUserException(sprintf('Nepodporovaný typ uživatele: %s', get_class($uzivatel)));
+        }
+
+        $novyUzivatel = $this->spravceEntit
+            ->getRepository(Uzivatel::class)
+            ->find($uzivatel->getId());
+
+        if (!$novyUzivatel) {
+            throw new UserNotFoundException('Uživatel už v databázi neexistuje.');
+        }
+
+        return $novyUzivatel;
     }
     //  Vrátí, zda provider pracuje s danou třídou uživatele.
-    public function supportsClass(string $trida): bool{
-        return $trida === Uzivatel::class;
+    public function supportsClass(string $trida): bool
+    {
+        return $trida === Uzivatel::class || is_subclass_of($trida, Uzivatel::class);
     }
 }
 

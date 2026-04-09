@@ -8,6 +8,15 @@
         <section class="karta profil-sekce-hlavni">
             <h1>Můj profil</h1>
             <div class="profil-blok">
+                {% if uzivatel.profilFoto %}
+                    <div class="profil-foto-box" style="margin-bottom: 20px;">
+                        <img src="{{ asset('uploads/profily/' ~ uzivatel.profilFoto) }}"
+                             alt="Profilová fotografie"
+                             class="profil-avatar"
+                             style="max-width: 160px; border-radius: 12px;">
+                    </div>
+
+                {% endif %}
                 <h2>Osobní údaje</h2>
                 <div class="profil-dvojice">
                     <div class="profil-popisek">Celé jméno</div>

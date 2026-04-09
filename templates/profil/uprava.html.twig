@@ -1,19 +1,38 @@
 {% extends 'base.html.twig' %}
 {% block title%}Úprava profilu{% endblock %}
+
 {% block body %}
-<div class="karta">
-    <h1>Úprava profilu</h1>
-        {{ form_start(formular) }}
-    <div class="profil-uprava-grid">
-        {{ form_row(formular.cele_jmeno) }}
-        {{ form_row(formular.uzivatelske_jmeno) }}
-        {{ form_row(formular.email) }}
-        {{ form_row(formular.profilFoto) }}
+    <div class="karta">
+        <h1>Úprava profilu</h1>
+
+        {% if uzivatel.profilFoto %}
+            <div class="profil-foto-box">
+                <img src="{{ asset('uploads/profily/' ~ uzivatel.profilFoto) }}"
+                     class="profil-avatar">
+
+                <form method="post" action="{{ path('profil_foto_smazat') }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('smazat_foto') }}">
+                    <button type="submit" class="button button-danger">
+                        Smazat profilovou fotku
+                    </button>
+                </form>
+            </div>
+        {% endif %}
+
+        {{ form_start(formular, {'attr': {'enctype': 'multipart/form-data'}}) }}
+
+        <div class="profil-uprava-grid">
+            {{ form_row(formular.cele_jmeno) }}
+            {{ form_row(formular.uzivatelske_jmeno) }}
+            {{ form_row(formular.email) }}
+            {{ form_row(formular.profilFoto) }}
+        </div>
+
+        <div class="form-actions">
+            <button type="submit">Uložit změny</button>
+            <a href="{{ path('profil') }}" class="button button-secondary">Zrušit</a>
+        </div>
+
+        {{ form_end(formular) }}
     </div>
-    <div class="form-actions">
-        <button type="submit">Uložit změny</button><br>
-        <a href="{{ path('profil') }}" class="button button-secondary">Zrušit</a>
-    </div>
-    {{ form_end(formular) }}
-</div>
 {% endblock %}

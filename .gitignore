@@ -37,3 +37,8 @@
 ###< squizlabs/php_codesniffer ###
 .idea/
 .DS_Storepublic/uploads/
+/public/uploads/*
+!/public/uploads/.gitkeep
+
+/public/uploads/profily/*
+!/public/uploads/profily/.gitkeep

@@ -19,3 +19,5 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin -
 
 RUN docker-php-ext-install zip bcmath pdo pdo_mysql intl
 RUN a2enmod rewrite
+
+COPY uploads.ini /usr/local/etc/php/conf.d/uploads.ini

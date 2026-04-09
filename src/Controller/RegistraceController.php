@@ -36,13 +36,7 @@ class RegistraceController extends AbstractController{
                 $this->addFlash('error', 'Toto uživatelské jméno je již používano.');
                 return $this->redirectToRoute('app_registrace');
             }
-            $existujeCeleJmeno = $entityManager->getRepository(Uzivatel::class)
-                ->findOneBy(['cele_jmeno' => $uzivatel->getCeleJmeno()]);
 
-            if($existujeCeleJmeno){
-                $this->addFlash('error', 'Toto celé jméno je již používáno.');
-                return $this->redirectToRoute('app_registrace');
-            }
             $souhlas18 = $request->request->get('souhlas18');
             if(!$souhlas18){
                 $this->addFlash('error', 'Pro registraci musíte potvrdit, že je Vám alespoň 18 let.');

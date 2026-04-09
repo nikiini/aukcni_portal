@@ -1436,6 +1436,88 @@ input[type=file]::file-selector-button:hover{
     border-left: 4px solid var(--barva-hlavni);
     border-radius: var(--radius-sm);
 }
+.profil-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #4f46e5;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    display: block;
+    margin-bottom: 10px;
+}
+•profil-foto-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+.profil-foto-box form {
+    margin-top: 10px;
+}
+.akce-smazat {
+    background: rgba(239, 68, 68, 0.12);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.35);
+
+    font-size: 12px;
+    padding: 6px 10px;
+    border-radius: 999px;
+
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.akce-smazat:hover {
+    background: rgba(239, 68, 68, 0.2);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(239, 68, 68, 0.25);
+}
+.thumb {
+    max-width: 140px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+.fotka-zoom {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    backdrop-filter: blur(5px);
+    background: rgba(120, 120, 120, 0.35);
+
+    justify-content: center;
+    align-items: center;
+
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.fotka-zoom.aktivni {
+    display: flex;
+    opacity: 1;
+}
+
+#modalImg {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 10px;
+
+    transform: scale(0.85);
+    transition: transform 0.25s ease;
+}
+
+.fotka-zoom.aktivni #modalImg {
+    transform: scale(1);
+}
 @keyframes fadeInUp{
     from{
         opacity: 0;
@@ -1456,89 +1538,332 @@ input[type=file]::file-selector-button:hover{
     }
 }
 
-@media(max-width: 1024px){
-    .hero{
+@media(max-width: 1200px){
+    .obsah,
+    .admin-layout{
+        padding-left: 18px;
+        padding-right: 18px;
+    }
+    .hero h1{
+        font-size: 38px;
+    }
+    .homepage-layout,
+    .aukce-layout{
+        grid-template-columns: 220px 1fr;
+        gap: 24px;
+    }
+    .detail-layout{
+        grid-template-columns: minmax(0, 1.6fr) minmax(280px, 1fr);
+        gap: 24px;
+    }
+    .admin-layout{
         grid-template-columns: 1fr;
+        gap: 24px;
+        margin-top: 24px;
+        margin-bottom: 24px;
+    }
+}
+
+@media(max-width: 1024px){
+    header{
+        padding: 14px 20px;
+    }
+    .hero,
+    .statistiky-layout,
+    .statistiky-hlavni,
+    .profil-layout,
+    .admin-content{
+        grid-template-columns: 1fr;
+    }
+    .hero{
+        gap: 22px;
+    }
+    .hero h1{
+        font-size: 34px;
     }
     .homepage-layout{
         grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+        gap: 24px;
     }
-    .homepage-sidebar{
-        position: static;
-    }
-    .statistiky-layout{
-        grid-template-columns: 1fr;
-    }
-    .profil-layout{
-        grid-template-columns: 1fr;
-    }
-}
-@media(max-width: 900px){
-    .detail-layout{
-        grid-template-columns: 1fr;
-    }
-    .detail-pravy{
-        position: static;
-    }
-    .statistiky-layout{
-        grid-template-columns:1fr;
-    }
-    .statistiky-dva-sloupce{
-        grid-template-columns:1fr;
-    }
+    .homepage-sidebar,
+    .detail-pravy,
     .statistiky-sidebar{
-        position:static;
+        position: static;
+        top: auto;
     }
+    .aukce-layout{
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    .aukce-sidebar{
+        border-right: none;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.4);
+        padding-right: 0;
+        padding-bottom: 16px;
+        max-height: none;
+        overflow: visible;
+    }
+    .detail-aukce-hlavni,
+    .stav-aukce,
+    .karta{
+        padding: 24px;
+    }
+    .statistiky-dva-sloupce,
     .statistiky-dvojice{
-        grid-template-columns:1fr;
-    }
-}
-@media(max-width: 768px){
-    header{
-        padding: 12px 18px;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-    }
-    .aukce-grid{
         grid-template-columns: 1fr;
     }
-    .hero-text{
-        padding: 18px;
-    }
-    .nav-toggle{
-        display:block;
-    }
 
-    .navigace{
-        width: 100%;
-        justify-content: space-between;
+    /* ADMIN TABLE FIX */
+    .admin-tabulka{
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
     }
-    .navigace-odkazy{
-        flex-wrap: wrap;
-        row-gap: 6px;
-        display:none;
-        flex-direction:column;
-        width:100%;
-        background:var(--barva-karta);
-        padding:15px;
-        border-radius:10px;
-        margin-top:10px;
-    }
-    .navigace-odkazy.open{
-        display:flex;
-    }
+}
 
-    .prepni-rezim{
-        margin-left: auto;
-    }
-    .obsah{
-        padding: 0 14px;
-    }
+@media(max-width: 900px){
+    .detail-layout,
     .homepage-layout{
         grid-template-columns: 1fr;
     }
+    .detail-pravy,
+    .homepage-sidebar,
+    .statistiky-sidebar{
+        position: static;
+    }
+
+    /* AUKCE GRID FIX */
+    .aukce-grid{
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px;
+    }
+
+    .aukce-hlavicka,
+    .admin-content,
+    .profil-foto-box{
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .profil-radek,
     .profil-dvojice{
         grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    .admin-akce,
+    .form-actions,
+    .hero-actions{
+        width: 100%;
+    }
+    .admin-akce > *,
+    .form-actions > *,
+    .hero-actions > *{
+        width: 100%;
+    }
+    .nav-dropdown{
+        width: min(100%, 320px);
+    }
+}
+
+@media(max-width: 768px){
+    body{
+        font-size: 15px;
+    }
+    header{
+        padding: 12px 16px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    .header-levy,
+    .navigace{
+        width: 100%;
+    }
+    .navigace{
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .nav-toggle{
+        display: block;
+        margin-left: auto;
+    }
+    .navigace-odkazy{
+        order: 3;
+        flex-wrap: wrap;
+        row-gap: 6px;
+        display: none;
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+        background: var(--barva-karta);
+        padding: 15px;
+        border-radius: 10px;
+        margin-top: 4px;
+        box-shadow: var(--stiny-male);
+    }
+    .navigace-odkazy.open{
+        display: flex;
+    }
+    .nav-item-wrapper,
+    .nav-item,
+    .nav-link,
+    header nav a{
+        width: 100%;
+    }
+    .nav-dropdown{
+        position: static;
+        width: 100%;
+        max-height: none;
+        margin-top: 8px;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        display: none;
+        box-shadow: none;
+        border-radius: 14px;
+    }
+    .nav-item-wrapper:hover .nav-dropdown{
+        display: block;
+    }
+    .prepni-rezim{
+        margin-left: 0;
+    }
+    .obsah{
+        margin-top: 18px;
+        padding: 0 14px;
+    }
+
+    .hero-text,
+    .detail-aukce-hlavni,
+    .stav-aukce,
+    .karta,
+    .notifikace-polozka{
+        padding: 18px;
+    }
+
+    .hero h1,
+    .detail-aukce-hlavni h1{
+        font-size: 28px;
+        line-height: 1.15;
+    }
+
+    .hero-subtitle{
+        font-size: 16px;
+    }
+
+    /* AUKCE MOBILE FIX */
+    .aukce-grid{
+        grid-template-columns: 1fr;
+    }
+
+    .aukce-thumbnail-wrapper{
+        height: 200px;
+    }
+
+    .aukce-card .button{
+        width: 100%;
+    }
+
+    .aukce-filtry,
+    .admin-akce,
+    .form-actions{
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filtr-button,
+    .button,
+    .button-secondary,
+    .button-small,
+    button{
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* ADMIN FIX */
+    .admin-tabulka{
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    .admin-tabulka th,
+    .admin-tabulka td{
+        padding: 10px;
+    }
+
+    .thumb,
+    .aukce-foto{
+        max-width: 100%;
+        width: 100%;
+        height: auto;
+        margin-right: 0;
+    }
+}
+
+@media(max-width: 640px){
+    .obsah,
+    .admin-layout{
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+    .header-nazev{
+        font-size: 14px;
+    }
+    .header-podnazev{
+        font-size: 11px;
+    }
+    .hero h1,
+    .detail-aukce-hlavni h1{
+        font-size: 24px;
+    }
+
+    .aukce-thumbnail-wrapper{
+        height: 170px;
+    }
+
+    .admin-tabulka{
+        font-size: 13px;
+    }
+}
+
+@media(max-width: 480px){
+    header{
+        padding: 10px 12px;
+    }
+    .obsah,
+    .admin-layout{
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .hero h1,
+    .detail-aukce-hlavni h1{
+        font-size: 22px;
+    }
+
+    .hero-subtitle,
+    .aukce-popis,
+    .profil-hodnota,
+    .profil-popisek{
+        font-size: 14px;
+    }
+
+    .button,
+    .button-secondary,
+    .button-small,
+    button,
+    .filtr-button{
+        padding: 11px 14px;
+        font-size: 14px;
+    }
+
+    .admin-tabulka{
+        font-size: 12px;
+    }
+
+    .aukce-thumbnail-wrapper{
+        height: 150px;
     }
 }

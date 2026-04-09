@@ -58,6 +58,7 @@ class AukceType extends AbstractType{
                 'expanded' => false,
                 'mapped' => false,
                 'required' => false,
+                'by_reference' => false,
                 'attr' => [
                     'class' => 'kategorie-hidden-select',
                     'style' => 'display:none;'
@@ -66,7 +67,9 @@ class AukceType extends AbstractType{
                     return $repo->createQueryBuilder('k')
                         ->orderBy('k.nazev', 'ASC');
                 },
+
             ])
+
             ->add('fotky', FileType::class, [
                 'label' => 'Fotografie aukce',
                 'mapped' => false,
@@ -84,6 +87,8 @@ class AukceType extends AbstractType{
                     new \Symfony\Component\Validator\Constraints\All([
                         'constraints' => [
                             new File([
+                                'maxSize' => '20M',
+                                'maxSizeMessage' => 'Fotka může mít maximálně 20 MB.',
                                 'mimeTypes' => [
                                     'image/jpeg',
                                     'image/png',
@@ -96,6 +101,7 @@ class AukceType extends AbstractType{
                 ],
             ]);
     }
+
     //  Naváže formulář na entitu Aukce.
     public function configureOptions(OptionsResolver $resolver):void{
         $resolver->setDefaults([

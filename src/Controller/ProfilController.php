@@ -27,21 +27,44 @@ class ProfilController extends AbstractController{
     }
     //  Umožní upravit údaje profilu včetně profilové fotografie.
     #[Route('/profil/uprava', name: 'profil_uprava')]
-    public function uprava(Request $request, EntityManagerInterface $entityManager): Response
+    public function uprava(Request $request, EntityManagerInterface $entityManager, UzivatelRepository $uzivatelRepository): Response
     {
-        $uzivatel = $this->getUser();
+        $prihlasenyUzivatel = $this->getUser();
+
+        if (!$prihlasenyUzivatel) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $uzivatel = $uzivatelRepository->find($prihlasenyUzivatel->getId());
 
         if (!$uzivatel) {
-            return $this->redirectToRoute('app_login');
+            throw $this->createNotFoundException('Uživatel nebyl nalezen.');
         }
 
         $formular = $this->createForm(ProfilType::class, $uzivatel);
         $formular->handleRequest($request);
 
         if ($formular->isSubmitted() && $formular->isValid()) {
+            $existujici = $uzivatelRepository->findOneBy([
+                'uzivatelske_jmeno' => $uzivatel->getUzivatelskeJmeno()
+            ]);
+
+            if ($existujici && $existujici->getId() !== $uzivatel->getId()) {
+                $this->addFlash('error', 'Toto uživatelské jméno už existuje.');
+                return $this->redirectToRoute('profil_uprava');
+            }
+
             $foto = $formular->get('profilFoto')->getData();
 
             if ($foto) {
+                if ($uzivatel->getProfilFoto()) {
+                    $staraCesta = $this->getParameter('kernel.project_dir') . '/public/uploads/profily/' . $uzivatel->getProfilFoto();
+
+                    if (file_exists($staraCesta)) {
+                        unlink($staraCesta);
+                    }
+                }
+
                 $novyNazev = uniqid() . '.' . ($foto->guessExtension() ?: 'jpg');
 
                 $foto->move(
@@ -60,6 +83,36 @@ class ProfilController extends AbstractController{
 
         return $this->render('profil/uprava.html.twig', [
             'formular' => $formular->createView(),
+            'uzivatel' => $uzivatel,
         ]);
+    }
+    #[Route('/profil/foto/smazat', name: 'profil_foto_smazat', methods: ['POST'])]
+    public function smazatFoto(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $uzivatel = $this->getUser();
+
+        if (!$uzivatel) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        if (!$this->isCsrfTokenValid('smazat_foto', $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException('Neplatný CSRF token.');
+        }
+
+        if ($uzivatel->getProfilFoto()) {
+
+            $cesta = $this->getParameter('kernel.project_dir') . '/public/uploads/profily/' . $uzivatel->getProfilFoto();
+
+            if (file_exists($cesta)) {
+                unlink($cesta);
+            }
+
+            $uzivatel->setProfilFoto(null);
+            $entityManager->flush();
+        }
+
+        $this->addFlash('success', 'Profilová fotografie byla smazána.');
+
+        return $this->redirectToRoute('profil_uprava');
     }
 }

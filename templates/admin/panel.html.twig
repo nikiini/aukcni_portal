@@ -10,7 +10,7 @@
             </a>
         </div>
         <div class="admin-layout">
-            {# LEVÝ SLOUPEC – UŽIVATELÉ #}
+            {# levý sloupec - seznam uživatelů #}
             <aside class="admin-sidebar">
                 <h2 class="aukce-sidebar-nadpis">Uživatelé</h2>
 
@@ -60,13 +60,19 @@
                 {% endif %}
             </aside>
 
-            {# PRAVÝ SLOUPEC – DETAIL UŽIVATELE + AKTIVITY #}
+            {# pravý sloupec - detail uživatele #}
             <div class="admin-content">
                 {% if not vybranyUzivatel %}
                     <p>Vyberte uživatele vlevo pro zobrazení detailu.</p>
                 {% else %}
                     <div class="karta" style="margin-top:0;">
+                        {% if vybranyUzivatel.profilFoto %}
+                            <div style="margin-bottom: 15px;">
+                                <img src="{{ asset('uploads/profily/' ~ vybranyUzivatel.profilFoto) }}" alt="Profilová fotografie" style="max-width: 140px; border-radius: 12px;">
+                            </div>
+                        {% endif %}
                         <div class="aukce-hlavicka">
+
                             <h2>{{ vybranyUzivatel.celeJmeno }}</h2>
 
                             <div class="form-actions">
@@ -81,9 +87,10 @@
                                     </button>
                                 </form>
                                     {% else %}
+
                                         <div class="form-actions" id="blokaceSekce">
 
-                                            {# === VÝCHOZÍ STAV === #}
+                                            {# výchozí stav #}
                                             <div id="blokaceVychozi">
                                                 <button type="button"
                                                         class="btn-danger"
@@ -96,7 +103,7 @@
                                                 </a>
                                             </div>
 
-                                            {# === ROZBALENÁ BLOKACE === #}
+                                            {# blokace #}
                                             <div id="blokaceFormular" style="display:none; margin-top:10px;">
                                                 <form method="post" action="{{ path('admin_uzivatel_blokovat', {verejneId: vybranyUzivatel.verejneId}) }}">
 
@@ -127,6 +134,7 @@
                                             </div>
                                         </div>
                                     {% endif %}
+
                                 {% endif %}
                             </div>
                         </div>

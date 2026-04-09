@@ -48,25 +48,25 @@ class Aukce
     /**
      * @var Collection<int, FotkyAukci>
      */
-    #[ORM\OneToMany(targetEntity: FotkyAukci::class, mappedBy: 'aukce')]
+    #[ORM\OneToMany(targetEntity: FotkyAukci::class, mappedBy: 'aukce', cascade: ['remove'], orphanRemoval: true)]
     private Collection $fotkyAukce;
 
     /**
      * @var Collection<int, Sazky>
      */
-    #[ORM\OneToMany(targetEntity: Sazky::class, mappedBy: 'aukce', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Sazky::class, mappedBy: 'aukce', cascade: ['remove'], orphanRemoval: true)]
     private Collection $sazky;
 
     /**
      * @var Collection<int, AukceKategorie>
      */
-    #[ORM\OneToMany(targetEntity: AukceKategorie::class, mappedBy: 'aukce')]
+    #[ORM\OneToMany(targetEntity: AukceKategorie::class, mappedBy: 'aukce', cascade: ['remove'], orphanRemoval: true)]
     private Collection $aukceKategorie;
 
     /**
      * @var Collection<int, Komentare>
      */
-    #[ORM\OneToMany(targetEntity: Komentare::class, mappedBy: 'aukce', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Komentare::class, mappedBy: 'aukce', cascade: ['remove'], orphanRemoval: true)]
     private Collection $komentare;
 
     #[ORM\ManyToOne]
