@@ -40,7 +40,8 @@ class StripeController extends AbstractController
             'mode' => 'payment',
 
             'metadata' => [
-                'user_id' => $this->getUser()->getId(),
+                'user_id' => (string)$this->getUser()->getId(),
+                'castka' => (string)$castka,
             ],
 
             'success_url' => $this->generateUrl('stripe_success', ['castka' => $castka], UrlGeneratorInterface::ABSOLUTE_URL),

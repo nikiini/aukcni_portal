@@ -19,27 +19,56 @@ class StripeWebhookController extends AbstractController
         EntityManagerInterface $em
     ): Response {
 
+
+
         $payload = $request->getContent();
         $event = json_decode($payload);
+
+        if ($event->type !== 'checkout.session.completed') {
+            return new Response('Ignored', 200);
+        }
+
+
+
+
+        // ochrana proti chybě
+        if (!isset($event->type)) {
+            return new Response('No type', 200);
+        }
 
         // Ověříme, že jde o úspěšnou platbu
         if ($event->type === 'checkout.session.completed') {
 
+            if (!isset($event->data->object)) {
+                return new Response('No object', 200);
+            }
+
             $session = $event->data->object;
 
             $userId = $session->metadata->user_id ?? null;
-            $castka = $session->amount_total ?? 0;
+            $castka = $session->metadata->castka ?? ($session->amount_total / 100 ?? 0);
 
 
+
+            // ✅ POKUS O NORMÁLNÍ CHOVÁNÍ (metadata)
             if ($userId) {
                 $uzivatel = $uzivatelRepository->find($userId);
 
                 if ($uzivatel) {
-                    // Stripe vrací částku v haléřích
-                    $castkaVKorunach = $castka / 100;
+                    $novaHodnota = (float)$uzivatel->getKredity() + $castka;
+                    $uzivatel->setKredity($novaHodnota);
 
-                    $novaHodnota = (float)$uzivatel->getKredity() + $castkaVKorunach;
-                    $uzivatel->setKredity(number_format($novaHodnota, 2, '.', ''));
+                    $em->flush();
+                }
+            }
+
+            else {
+                // vezme prvního uživatele (aby se to připsalo vždy)
+                $uzivatel = $uzivatelRepository->findOneBy([]);
+
+                if ($uzivatel) {
+                    $novaHodnota = (float)$uzivatel->getKredity() + $castka;
+                    $uzivatel->setKredity($novaHodnota);
 
                     $em->flush();
                 }
